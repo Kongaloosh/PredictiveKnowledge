@@ -63,50 +63,6 @@ class StateRepresentation(object):
     return (r, g, b)
 
 
-  def didTouch(self, previousAction, currentState):
-    # Determine if if touch was obtained last time step
-    if not len(currentState.observations) > 0:
-      return False
-
-    didTouch = False
-
-    """
-    print()
-    print("Grid:")
-    print(grid)
-    """
-
-    if previousAction == self.behaviorPolicy.ACTIONS['extend_hand']:
-      msg = currentState.observations[0].text
-      #print(msg)
-
-      observations = json.loads(msg)  # and parse the JSON
-      grid = observations.get(u'floor3x3', 0)  # and get the grid we asked for
-      yaw = observations.get(u'Yaw', 0)
-      facingIdx = 1
-      if (yaw == 0.0):
-        # Facing south
-        facingIdx = 7
-      elif (yaw == 90.0):
-        # Facing west
-        facingIdx = 3
-      elif (yaw == 180.0):
-        # Facing north
-        facingIdx = 1
-      elif (yaw == -90 or yaw == 270):
-        # Facing east
-        facingIdx = 5
-      if not grid[facingIdx] == "air":
-        didTouch = True
-
-      """
-      print()
-      print("Grid:")
-      print(grid)
-      """
-
-    return didTouch
-
   def getEmptyPhi(self):
     return np.zeros(TOTAL_FEATURE_LENGTH)
 
@@ -125,10 +81,9 @@ class StateRepresentation(object):
 
     if not state:
       return None
-    if len(state.video_frames) < 0:
-      return self.getEmptyPhi()
+
     try:
-      frame = state.video_frames[0].pixels
+      frame = state['visualData']
     except:
       return self.getEmptyPhi()
 
@@ -178,15 +133,11 @@ class StateRepresentation(object):
 
 
     phi = np.zeros(TOTAL_FEATURE_LENGTH)
-    msg = state.observations[0].text
 
-    observations = json.loads(msg)  # and parse the JSON
-    xPos = observations.get(u'XPos', 0) - 0.5
-    zPos = observations.get(u'ZPos', 0) - 0.5
-    x = int(xPos) + 5
-    z = int(zPos) + 5
-    yaw = observations.get(u'Yaw', 0)
-    didTouch = self.didTouch(previousAction, state)
+    xPos = state['x']
+    zPos = state['y']
+    yaw = state['yaw']
+    didTouch = state['touchData']
 
     idx = int(z) * 10 + x
 

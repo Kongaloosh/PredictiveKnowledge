@@ -43,6 +43,12 @@ class GridWorld:
         return b
 
   """
+  def gridFor(self, x, y):
+    k = self.keyNameFor(x, y)
+    if k in self.grids:
+      return self.grids[k]
+    else:
+      return None
 
   def keyNameFor(self, x, y):
     return str(x) + ',' + str(y)
@@ -102,7 +108,7 @@ class GridWorld:
 
     #pixelData = self.imageDataForFile(self.grids[currentGridKey][str(self.currentYaw)])
     pixelData = self.grids[currentGridKey][str(self.currentYaw)]
-    return {'visionData': pixelData, 'touchData': didTouch, 'reward':0 }
+    return {'visionData': pixelData, 'touchData': didTouch, 'reward':0, 'x': self.currentX, 'y': self.currentY, 'yaw': self,currentYaw}
 
 
 ##########################################

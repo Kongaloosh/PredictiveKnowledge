@@ -37,7 +37,7 @@ import peakAtState as peak
 from BehaviorPolicy import *
 from display import *
 from GVF import *
-
+from GridWorld import *
 from PIL import ImageTk
 from PIL import Image
 
@@ -65,17 +65,13 @@ def didTouchCumulant(phi):
 class Foreground:
 
   def __init__(self):
-    self.agent_host = MalmoPython.AgentHost()
-    self.agent_host.setObservationsPolicy(MalmoPython.ObservationsPolicy.LATEST_OBSERVATION_ONLY)
-    # self.agent_host.setObservationsPolicy(MalmoPython.ObservationsPolicy.KEEP_ALL_OBSERVATIONS)
-    self.agent_host.setVideoPolicy(MalmoPython.VideoPolicy.LATEST_FRAME_ONLY)
-    # self.agent_host.setVideoPolicy(MalmoPython.VideoPolicy.KEEP_ALL_FRAMES)
+    self.gridWorld = GridWorld('model/grids', initialX=1, initialY = 1)
     self.behaviorPolicy = BehaviorPolicy()
 
     self.display = Display()
     self.gvfs = {}
     self.configureGVFs(simplePhi=USE_SIMPLE_PHI)
-    self.stateRepresentation = StateRepresentation(self.gvfs)
+    self.stateRepresentation = StateRepresentation(self.gvfs, self.gridWorld)
     self.state = False
     self.oldState = False
     self.phi = self.stateRepresentation.getEmptyPhi()
