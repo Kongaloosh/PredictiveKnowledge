@@ -283,47 +283,6 @@ class Foreground:
     distanceToBackGVF.policy = self.behaviorPolicy.turnRightPolicy
     self.gvfs[distanceToBackGVF.name] = distanceToBackGVF
 
-  def start_agent_host(self):
-    try:
-      self.agent_host.parse(sys.argv)
-    except RuntimeError as e:
-      print('ERROR:', e)
-      print(self.agent_host.getUsage())
-      exit(1)
-      exit(1)
-    if self.agent_host.receivedArgument("help"):
-      print(self.agent_host.getUsage())
-      exit(0)
-
-    # missionXML is from simpleMission.py
-    my_mission = MalmoPython.MissionSpec(missionXML, True)
-    my_mission_record = MalmoPython.MissionRecordSpec()
-
-    # Attempt to start a mission:
-    max_retries = 3
-    for retry in range(max_retries):
-      try:
-        self.agent_host.startMission(my_mission, my_mission_record)
-        break
-      except RuntimeError as e:
-        if retry == max_retries - 1:
-          print("Error starting mission:", e)
-          exit(1)
-        else:
-          time.sleep(2)
-
-    # Loop until mission starts:
-    print("Waiting for the mission to start ", end=' ')
-    self.state = self.agent_host.getWorldState()
-    while not self.state.has_mission_begun:
-      print(".", end="")
-      time.sleep(0.1)
-      self.state = self.agent_host.getWorldState()
-      for error in self.state.errors:
-        print("Error:", error.text)
-
-    print()
-    print("Mission running ", end=' ')
 
   def learn(self):
     for name, gvf in self.gvfs.items():
@@ -334,8 +293,7 @@ class Foreground:
 
     frameError = False
     try:
-      frame = self.state.video_frames[0].pixels
-      msg = self.oldState.observations[0].text
+      frame = self.state['visualData']
     except:
       frameError = True
       print("Error gettnig frame")
@@ -432,14 +390,13 @@ class Foreground:
 
 
   def start(self):
-    self.start_agent_host()
 
     self.actionCount = 0
 
     self.action = self.behaviorPolicy.ACTIONS['extend_hand']
 
     # Loop until mission ends:
-    while self.state.is_mission_running:
+    while True:
       self.actionCount += 1
       # print(".", end="")
 
@@ -448,9 +405,9 @@ class Foreground:
 
       # Select and send action. Need to sleep to give time for simulator to respond
       self.action = self.behaviorPolicy.mostlyForwardAndTouchPolicy(self.state)
-      self.agent_host.sendCommand(self.action)
+      observation = self.gridWorld.takeAction(self.action)
       time.sleep(0.20)
-      self.state = self.agent_host.getWorldState()
+      self.state = observation
       if self.state.number_of_observations_since_last_state > 0:
 
         print("==========")
@@ -459,21 +416,15 @@ class Foreground:
         # print("Length of observation array: " + str(len(self.state.observations)))
         # print("Number of video frames: " + str(len(self.state.video_frames)))
 
-        for observation in self.oldState.observations:
-          msg = observation.text
-          obs = json.loads(msg)  # and parse the JSON
-          yaw = obs.get(u'Yaw', 0)
-          xPos = obs.get(u'XPos', 0)
-          zPos = obs.get(u'ZPos', 0)
-          print("From observation: (" + str(xPos) + ", " + str(zPos) + "), yaw:" + str(yaw))
+        yaw = self.oldState['yaw']
+        xPos = self.oldState['x']
+        zPos = self.oldState['y']
+        print("From observation: (" + str(xPos) + ", " + str(zPos) + "), yaw:" + str(yaw))
 
-        for observation in self.state.observations:
-          msg = observation.text
-          obs = json.loads(msg)  # and parse the JSON
-          yaw = obs.get(u'Yaw', 0)
-          xPos = obs.get(u'XPos', 0)
-          zPos = obs.get(u'ZPos', 0)
-          print("To observation: (" + str(xPos) + ", " + str(zPos) + "), yaw:" + str(yaw))
+        yaw = self.state['yaw']
+        xPos = self.state['x']
+        zPos = self.state['y']
+        print("To observation: (" + str(xPos) + ", " + str(zPos) + "), yaw:" + str(yaw))
         """
         if (self.action == "turn -1"):
           #Debug the video
@@ -486,9 +437,6 @@ class Foreground:
         """
         print("")
 
-        for error in self.state.errors:
-          print("Error:", error.text)
-        # Simple phi
         self.phi = self.stateRepresentation.getPhi(previousPhi=self.oldPhi, state=self.state,
                                                    previousAction=self.action, simplePhi=USE_SIMPLE_PHI)
 

@@ -119,7 +119,7 @@ class StateRepresentation(object):
 
         phi.extend(predictionRep)
 
-    didTouch = self.didTouch(previousAction = previousAction, currentState = state)
+    didTouch = state['touchSensor']
     phi.append(int(didTouch))
 
     return np.array(phi)
