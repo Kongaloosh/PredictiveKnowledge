@@ -65,7 +65,7 @@ class GridWorld:
     didTouch = False
 
     if action == 'turn_left':
-      self.currentYaw = (self.currentX + 90) % 360
+      self.currentYaw = (self.currentYaw + 90) % 360
     elif action == 'turn_right':
       self.currentYaw = (self.currentYaw + 90) % 360
     elif action == 'extend_hand':
@@ -108,13 +108,14 @@ class GridWorld:
 
     #pixelData = self.imageDataForFile(self.grids[currentGridKey][str(self.currentYaw)])
     pixelData = self.grids[currentGridKey][str(self.currentYaw)]
-    return {'visionData': pixelData, 'touchData': didTouch, 'reward':0, 'x': self.currentX, 'y': self.currentY, 'yaw': self,currentYaw}
+    return {'visionData': pixelData, 'touchData': didTouch, 'reward':0, 'x': self.currentX, 'y': self.currentY, 'yaw': self.currentYaw}
 
 
 ##########################################
 ## testing ###############################
 ##########################################
 
+"""
 def printImageFromObs(obs, pointsOfInterest):
   voronoi = voronoi_from_pixels(pixels=obs['visionData'], dimensions=(WIDTH, HEIGHT),
                                 pixelsOfInterest=pointsOfInterest)
@@ -141,3 +142,5 @@ printImageFromObs(obs, pointsOfInterest)
 
 obs = gridWorld.takeAction('extend_hand')
 printImageFromObs(obs, pointsOfInterest)
+
+"""

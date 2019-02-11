@@ -9,10 +9,10 @@ class BehaviorPolicy:
     self.i = 0
 
     self.ACTIONS = {
-      'forward': "move 1",
-      'turn_left': "turn -1",
-      'turn_right': "turn 1",
-      'extend_hand':"move 0"
+      'forward': "forward",
+      'turn_left': "turn_left",
+      'turn_right': "turn_right",
+      'extend_hand':"extend_hand"
     }
     '''
     self.ACTIONS = {

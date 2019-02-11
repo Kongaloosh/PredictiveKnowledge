@@ -1,28 +1,7 @@
 
 from __future__ import print_function
-# ------------------------------------------------------------------------------------------------
-# Copyright (c) 2016 Microsoft Corporation
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
-# associated documentation files (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge, publish, distribute,
-# sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all copies or
-# substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
-# NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-# ------------------------------------------------------------------------------------------------
-
-# Tutorial sample #2: Run simple mission using raw XML
 
 from builtins import range
-import MalmoPython
 import os
 import sys
 import time
@@ -32,7 +11,6 @@ import cv2
 from Voronoi import *
 from constants import *
 from StateRepresentation import *
-from simpleMission import *
 import peakAtState as peak
 from BehaviorPolicy import *
 from display import *
@@ -71,7 +49,7 @@ class Foreground:
     self.display = Display()
     self.gvfs = {}
     self.configureGVFs(simplePhi=USE_SIMPLE_PHI)
-    self.stateRepresentation = StateRepresentation(self.gvfs, self.gridWorld)
+    self.stateRepresentation = StateRepresentation(self.gvfs)
     self.state = False
     self.oldState = False
     self.phi = self.stateRepresentation.getEmptyPhi()
@@ -293,7 +271,7 @@ class Foreground:
 
     frameError = False
     try:
-      frame = self.state['visualData']
+      frame = self.state['visionData']
     except:
       frameError = True
       print("Error gettnig frame")
@@ -305,16 +283,20 @@ class Foreground:
       # cv2.imshow('My Image', voronoi)
       # cv2.waitKey(0)
 
-      didTouch = self.stateRepresentation.didTouch(previousAction=self.action, currentState=self.oldState)
+      if self.oldState == False:
+        didTouch = False
+      else:
+        didTouch = self.oldState['touchData']
 
-      inFront = peak.isWallInFront(self.state)
+      inFront = peak.isWallInFront(self.state['x'], self.state['y'], self.state['yaw'], self.gridWorld)
       touchPrediction = self.gvfs['T'].prediction(self.phi)
 
-      previousInFront = peak.isWallInFront(self.oldState)
-      previousTouchPrediction = self.gvfs['T'].prediction(self.oldPhi)
 
       '''
       #For debugging
+      previousInFront = peak.isWallInFront(self.oldState['x'], self.oldState['y'], self.oldState['yaw'], self.gridWorld)
+      previousTouchPrediction = self.gvfs['T'].prediction(self.oldPhi)
+
       if not previousInFront and previousTouchPrediction > 0.0:
         print("Bad first learning. ")
         print("Last action: " + self.action)
@@ -339,28 +321,28 @@ class Foreground:
         print("Observations since last:" + str(self.state.number_of_observations_since_last_state))
         print("")
       '''
-      onLeft = peak.isWallOnLeft(self.state)
+      onLeft = peak.isWallOnLeft(self.state['x'], self.state['y'], self.state['yaw'], self.gridWorld)
       turnLeftAndTouchPrediction = self.gvfs['TL'].prediction(self.phi)
 
-      onRight = peak.isWallOnRight(self.state)
+      onRight = peak.isWallOnRight(self.state['x'], self.state['y'], self.state['yaw'], self.gridWorld)
       turnRightAndtouchPrediction = self.gvfs['TR'].prediction(self.phi)
 
-      isBehind = peak.isWallBehind(self.state)
+      isBehind = peak.isWallBehind(self.state['x'], self.state['y'], self.state['yaw'], self.gridWorld)
       touchBehindPrediction = self.gvfs['TB'].prediction(self.phi)
 
-      wallAdjacent = peak.isWallAdjacent(self.state)
+      wallAdjacent = peak.isWallAdjacent(self.state['x'], self.state['y'], self.state['yaw'], self.gridWorld)
       isWallAdjacentPrediction = self.gvfs['TA'].prediction(self.phi)
 
-      distanceToAdjacent = peak.distanceToAdjacent(self.state)
+      distanceToAdjacent = peak.distanceToAdjacent(self.state['x'], self.state['y'], self.state['yaw'], self.gridWorld)
       distanceToAdjacentPrediction = self.gvfs['DTA'].prediction(self.phi)
 
-      distanceLeft = peak.distanceLeftToAdjacent(self.state)
+      distanceLeft = peak.distanceLeftToAdjacent(self.state['x'], self.state['y'], self.state['yaw'], self.gridWorld)
       distanceLeftPrediction = self.gvfs['DTL'].prediction(self.phi)
 
-      distanceRight = peak.distanceRightToAdjacent(self.state)
+      distanceRight = peak.distanceRightToAdjacent(self.state['x'], self.state['y'], self.state['yaw'], self.gridWorld)
       distanceRightPrediction = self.gvfs['DTR'].prediction(self.phi)
 
-      distanceBack = peak.distanceBehindToAdjacent(self.state)
+      distanceBack = peak.distanceBehindToAdjacent(self.state['x'], self.state['y'], self.state['yaw'], self.gridWorld)
       distanceBackPrediction = self.gvfs['DTB'].prediction(self.phi)
 
       self.display.update(image=voronoi,
@@ -406,57 +388,44 @@ class Foreground:
       # Select and send action. Need to sleep to give time for simulator to respond
       self.action = self.behaviorPolicy.mostlyForwardAndTouchPolicy(self.state)
       observation = self.gridWorld.takeAction(self.action)
-      time.sleep(0.20)
+      #time.sleep(0.2)
       self.state = observation
-      if self.state.number_of_observations_since_last_state > 0:
 
-        print("==========")
-        print("Action was: " + str(self.action))
-        # print("Number of observations since last: " + str(self.state.number_of_observations_since_last_state))
-        # print("Length of observation array: " + str(len(self.state.observations)))
-        # print("Number of video frames: " + str(len(self.state.video_frames)))
-
+      print("==========")
+      print("Action was: " + str(self.action))
+      # print("Number of observations since last: " + str(self.state.number_of_observations_since_last_state))
+      # print("Length of observation array: " + str(len(self.state.observations)))
+      # print("Number of video frames: " + str(len(self.state.video_frames)))
+      if self.oldState:
         yaw = self.oldState['yaw']
         xPos = self.oldState['x']
         zPos = self.oldState['y']
         print("From observation: (" + str(xPos) + ", " + str(zPos) + "), yaw:" + str(yaw))
 
-        yaw = self.state['yaw']
-        xPos = self.state['x']
-        zPos = self.state['y']
-        print("To observation: (" + str(xPos) + ", " + str(zPos) + "), yaw:" + str(yaw))
-        """
-        if (self.action == "turn -1"):
-          #Debug the video
-          i = 0
-          for videoframe in self.state.video_frames:
-            cmap = Image.frombytes('RGB', (WIDTH, HEIGHT), bytes(videoframe.pixels))
-            cmap.show(title = "Image: " + str(i))
-            i+=1
-          i = i
-        """
-        print("")
-
-        self.phi = self.stateRepresentation.getPhi(previousPhi=self.oldPhi, state=self.state,
-                                                   previousAction=self.action, simplePhi=USE_SIMPLE_PHI)
-
-        # Do the learning
-        self.learn()
-
-        # Update our display (for debugging and progress reporting)
-        self.updateUI()
-
-      # Get new state
-
+      yaw = self.state['yaw']
+      xPos = self.state['x']
+      zPos = self.state['y']
+      print("To observation: (" + str(xPos) + ", " + str(zPos) + "), yaw:" + str(yaw))
       """
-      - Choose action
-      - Take action
-      - Get new observe
-      - Make previous observe old
-      - Learn
-      - Update display
-
+      if (self.action == "turn -1"):
+        #Debug the video
+        i = 0
+        for videoframe in self.state.video_frames:
+          cmap = Image.frombytes('RGB', (WIDTH, HEIGHT), bytes(videoframe.pixels))
+          cmap.show(title = "Image: " + str(i))
+          i+=1
+        i = i
       """
+      print("")
+
+      self.phi = self.stateRepresentation.getPhi(previousPhi=self.oldPhi, state=self.state,
+                                                 previousAction=self.action, simplePhi=USE_SIMPLE_PHI)
+
+      # Do the learning
+      self.learn()
+
+      # Update our display (for debugging and progress reporting)
+      self.updateUI()
 
     print()
     print("Mission ended")

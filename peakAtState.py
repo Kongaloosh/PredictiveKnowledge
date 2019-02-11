@@ -7,7 +7,7 @@ def isWallInFront(currentX, currentY, yaw,  gridWorld):
   isBlock = False
   desiredX = currentX
   desiredY = currentY
-  yaw = yaw % 360
+
   if (yaw == 0.0):
     # Facing south
     desiredY = desiredY + 1
@@ -22,7 +22,7 @@ def isWallInFront(currentX, currentY, yaw,  gridWorld):
     desiredX = desiredX + 1
 
   grid = gridWorld.gridFor(desiredX, desiredY)
-  if not grid == None:
+  if grid == None:
     isBlock = True
 
   return isBlock
@@ -42,22 +42,22 @@ def isWallAdjacent(currentX, currentY, yaw, gridWorld):
 
 def distanceToAdjacent(currentX, currentY, yaw, gridWorld):
   yaw = yaw % 360
-  if isWallInFront(currentState, gridWorld):
+  if isWallInFront(currentX, currentY, yaw, gridWorld):
     atWall = True
     return 1
   else:
     if (yaw == 0.0):
       # Facing south
-      return 1 + distanceToAdjacent(x, currentY + 1, yaw, gridWorld)
+      return 1 + distanceToAdjacent(currentX, currentY + 1, yaw, gridWorld)
     elif (yaw == 90.0):
       # Facing west
-      return 1 + distanceToAdjacent(x - 1, currentY, yaw, gridWorld)
+      return 1 + distanceToAdjacent(currentX - 1, currentY, yaw, gridWorld)
     elif (yaw == 180.0):
       # Facing north
-      return 1 + distanceToAdjacent(x, currentY - 1, yaw, gridWorld)
+      return 1 + distanceToAdjacent(currentX, currentY - 1, yaw, gridWorld)
     elif (yaw == -90 or yaw == 270):
       # Facing east
-      return 1 + distanceToAdjacent(x + 1, currentY, yaw, gridWorld)
+      return 1 + distanceToAdjacent(currentX + 1, currentY, yaw, gridWorld)
 
 
 
@@ -65,8 +65,8 @@ def distanceToAdjacent(currentX, currentY, yaw, gridWorld):
 def distanceLeftToAdjacent(currentX, currentY, yaw, gridWorld):
   return distanceToAdjacent(currentX, currentY, yaw - 90, gridWorld)
 
-def distanceRightToAdjacent(currentState):
+def distanceRightToAdjacent(currentX, currentY, yaw, gridWorld):
   return distanceToAdjacent(currentX, currentY, yaw + 90, gridWorld)
 
-def distanceBehindToAdjacent(currentState):
+def distanceBehindToAdjacent(currentX, currentY, yaw, gridWorld):
   return distanceToAdjacent(currentX, currentY, yaw + 180, gridWorld)

@@ -29,7 +29,8 @@ DISPLAY_HEIGHT = 432 + video_height
 class Display(object):
   def __init__(self):
     plt.ion() #turn matplot interactive on
-    self.root = Tk()
+    #self.root = Tk()
+    self.root = Toplevel()
     self.root.wm_title("GVF Knowledge")
 
 

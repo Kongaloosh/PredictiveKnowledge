@@ -83,7 +83,7 @@ class StateRepresentation(object):
       return None
 
     try:
-      frame = state['visualData']
+      frame = state['visionData']
     except:
       return self.getEmptyPhi()
 
@@ -119,7 +119,7 @@ class StateRepresentation(object):
 
         phi.extend(predictionRep)
 
-    didTouch = state['touchSensor']
+    didTouch = state['touchData']
     phi.append(int(didTouch))
 
     return np.array(phi)
