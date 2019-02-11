@@ -62,6 +62,7 @@ class Display(object):
     self.tCanvas.draw()
     self.tCanvas.get_tk_widget().grid(row = 2, column = 0)
 
+
     #TL
     self.tlFigure = Figure(figsize=(4.3,2), dpi=100)
     self.tlPlot = self.tlFigure.add_subplot(111)
@@ -184,6 +185,7 @@ class Display(object):
     self.numberOfStepsLabel = Label(self.root, textvariable = self.numberOfSteps)
     self.numberOfStepsLabel.grid(row = 5, columnspan = 3)
     #self.numberOfStepsLabel.pack(side = "top", anchor = "w")
+
 
     self.reset()
 
@@ -348,7 +350,6 @@ class Display(object):
     self.dtbPredictionLine.set_ydata(self.dtbPredictions)
     self.dtbActualLine.set_ydata(self.dtbActualValues)
     self.dtbCanvas.draw()
-
 
     self.root.update()
 

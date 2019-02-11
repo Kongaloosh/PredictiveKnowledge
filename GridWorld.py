@@ -56,7 +56,7 @@ class GridWorld:
 
 
   def takeAction(self, action):
-    print("Taking action " + str(action))
+
     #Set the new orientation
     if action not in self.ACTIONS:
       print("Error. specified action not in action set")

@@ -42,11 +42,13 @@ def didTouchCumulant(phi):
 
 class Foreground:
 
-  def __init__(self):
+  def __init__(self, showDisplay = True):
+    self.showDisplay = showDisplay
     self.gridWorld = GridWorld('model/grids', initialX=1, initialY = 1)
     self.behaviorPolicy = BehaviorPolicy()
 
-    self.display = Display()
+    if self.showDisplay:
+      self.display = Display()
     self.gvfs = {}
     self.configureGVFs(simplePhi=USE_SIMPLE_PHI)
     self.stateRepresentation = StateRepresentation(self.gvfs)
@@ -278,8 +280,9 @@ class Foreground:
 
     if not frameError:
       # rgb = self.s
-      voronoi = voronoi_from_pixels(pixels=frame, dimensions=(WIDTH, HEIGHT),
-                                    pixelsOfInterest=self.stateRepresentation.pointsOfInterest)
+      if self.showDisplay:
+        voronoi = voronoi_from_pixels(pixels=frame, dimensions=(WIDTH, HEIGHT),
+                                      pixelsOfInterest=self.stateRepresentation.pointsOfInterest)
       # cv2.imshow('My Image', voronoi)
       # cv2.waitKey(0)
 
@@ -345,28 +348,29 @@ class Foreground:
       distanceBack = peak.distanceBehindToAdjacent(self.state['x'], self.state['y'], self.state['yaw'], self.gridWorld)
       distanceBackPrediction = self.gvfs['DTB'].prediction(self.phi)
 
-      self.display.update(image=voronoi,
-                          numberOfSteps=self.actionCount,
-                          currentTouchPrediction=touchPrediction,
-                          wallInFront=inFront,
-                          didTouch=didTouch,
-                          turnLeftAndTouchPrediction=turnLeftAndTouchPrediction,
-                          wallOnLeft=onLeft,
-                          turnRightAndTouchPrediction=turnRightAndtouchPrediction,
-                          touchBehindPrediction = touchBehindPrediction,
-                          wallBehind = isBehind,
-                          touchAdjacentPrediction=isWallAdjacentPrediction,
-                          wallAdjacent=wallAdjacent,
-                          wallOnRight=onRight,
-                          distanceToAdjacent = distanceToAdjacent,
-                          distanceToAdjacentPrediction = distanceToAdjacentPrediction,
-                          distanceToLeft = distanceLeft,
-                          distanceToLeftPrediction = distanceLeftPrediction,
-                          distanceToRight = distanceRight,
-                          distanceToRightPrediction = distanceRightPrediction,
-                          distanceBack = distanceBack,
-                          distanceBackPrediction = distanceBackPrediction
-                          )
+      if self.showDisplay:
+        self.display.update(image=voronoi,
+                            numberOfSteps=self.actionCount,
+                            currentTouchPrediction=touchPrediction,
+                            wallInFront=inFront,
+                            didTouch=didTouch,
+                            turnLeftAndTouchPrediction=turnLeftAndTouchPrediction,
+                            wallOnLeft=onLeft,
+                            turnRightAndTouchPrediction=turnRightAndtouchPrediction,
+                            touchBehindPrediction = touchBehindPrediction,
+                            wallBehind = isBehind,
+                            touchAdjacentPrediction=isWallAdjacentPrediction,
+                            wallAdjacent=wallAdjacent,
+                            wallOnRight=onRight,
+                            distanceToAdjacent = distanceToAdjacent,
+                            distanceToAdjacentPrediction = distanceToAdjacentPrediction,
+                            distanceToLeft = distanceLeft,
+                            distanceToLeftPrediction = distanceLeftPrediction,
+                            distanceToRight = distanceRight,
+                            distanceToRightPrediction = distanceRightPrediction,
+                            distanceBack = distanceBack,
+                            distanceBackPrediction = distanceBackPrediction
+                            )
       # time.sleep(1.0)
 
 
@@ -380,6 +384,8 @@ class Foreground:
     # Loop until mission ends:
     while True:
       self.actionCount += 1
+      if self.actionCount % 100 == 0:
+        print("Step " + str(self.actionCount) + " ... ")
       # print(".", end="")
 
       self.oldState = self.state
@@ -391,8 +397,8 @@ class Foreground:
       #time.sleep(0.2)
       self.state = observation
 
-      print("==========")
-      print("Action was: " + str(self.action))
+      #print("==========")
+      #print("Action was: " + str(self.action))
       # print("Number of observations since last: " + str(self.state.number_of_observations_since_last_state))
       # print("Length of observation array: " + str(len(self.state.observations)))
       # print("Number of video frames: " + str(len(self.state.video_frames)))
@@ -400,12 +406,12 @@ class Foreground:
         yaw = self.oldState['yaw']
         xPos = self.oldState['x']
         zPos = self.oldState['y']
-        print("From observation: (" + str(xPos) + ", " + str(zPos) + "), yaw:" + str(yaw))
+        #print("From observation: (" + str(xPos) + ", " + str(zPos) + "), yaw:" + str(yaw))
 
       yaw = self.state['yaw']
       xPos = self.state['x']
       zPos = self.state['y']
-      print("To observation: (" + str(xPos) + ", " + str(zPos) + "), yaw:" + str(yaw))
+      #print("To observation: (" + str(xPos) + ", " + str(zPos) + "), yaw:" + str(yaw))
       """
       if (self.action == "turn -1"):
         #Debug the video
@@ -416,7 +422,7 @@ class Foreground:
           i+=1
         i = i
       """
-      print("")
+      #print("")
 
       self.phi = self.stateRepresentation.getPhi(previousPhi=self.oldPhi, state=self.state,
                                                  previousAction=self.action, simplePhi=USE_SIMPLE_PHI)
@@ -431,6 +437,5 @@ class Foreground:
     print("Mission ended")
     # Mission has ended.
 
-
-fg = Foreground()
+fg = Foreground(showDisplay = False)
 fg.start()
