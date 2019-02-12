@@ -33,10 +33,8 @@ class Display(object):
     self.root = Toplevel()
     self.root.wm_title("GVF Knowledge")
 
-    self.canvas = Canvas(self.root, borderwidth=0, highlightthickness=0, width=WIDTH, height=HEIGHT, bg="black")
-    #self.canvas.config(width=WIDTH, height=HEIGHT)
-    #self.canvas.pack(padx=0, pady=0)
-    self.canvas.grid(row = 0, columnspan = 3)
+    self.voronoiCanvas = Canvas(self.root, borderwidth=0, highlightthickness=0, width=WIDTH, height=HEIGHT, bg="black")
+    self.voronoiCanvas.grid(row = 0, columnspan = 3)
 
     #Did touch display
     self.didTouch = StringVar()
@@ -47,7 +45,7 @@ class Display(object):
     timeStepValues = np.arange(-50, 0, 1) #The last 50
 
     #T
-    self.tFigure = Figure(figsize=(4.3,2), dpi=100)
+    self.tFigure = Figure(figsize=(4.5, 1.8), dpi=100)
     #self.a = self.tAFigure.add_subplot(111)
     self.tPlot = self.tFigure.add_subplot(111)
     self.tPlot.set_ylim(-0.05, 1.05)
@@ -64,7 +62,7 @@ class Display(object):
 
 
     #TL
-    self.tlFigure = Figure(figsize=(4.3,2), dpi=100)
+    self.tlFigure = Figure(figsize=(4.5, 1.8), dpi=100)
     self.tlPlot = self.tlFigure.add_subplot(111)
     self.tlPlot.set_ylim(-0.05, 1.05)
     self.tlPredictions = [0.0] * 50
@@ -78,7 +76,7 @@ class Display(object):
     self.tlCanvas.get_tk_widget().grid(row = 2, column = 1)
 
     #TR
-    self.trFigure = Figure(figsize=(4.3,2), dpi=100)
+    self.trFigure = Figure(figsize=(4.5, 1.8), dpi=100)
     self.trPlot = self.trFigure.add_subplot(111)
     self.trPlot.set_ylim(-0.05, 1.05)
     self.trPredictions = [0.0] * 50
@@ -92,7 +90,7 @@ class Display(object):
     self.trCanvas.get_tk_widget().grid(row = 2, column = 2)
 
     #TB
-    self.tbFigure = Figure(figsize=(4.3,2), dpi=100)
+    self.tbFigure = Figure(figsize=(4.5, 1.8), dpi=100)
     self.tbPlot = self.tbFigure.add_subplot(111)
     self.tbPlot.set_ylim(-0.05, 1.05)
     self.tbPredictions = [0.0] * 50
@@ -106,7 +104,7 @@ class Display(object):
     self.tbCanvas.get_tk_widget().grid(row = 3, column = 0)
 
     #TA
-    self.tAFigure = Figure(figsize=(4.3,2), dpi=100)
+    self.tAFigure = Figure(figsize=(4.5, 1.8), dpi=100)
     #self.a = self.tAFigure.add_subplot(111)
     self.taPlot = self.tAFigure.add_subplot(111)
     self.taPlot.set_ylim(-0.05, 1.05)
@@ -123,7 +121,7 @@ class Display(object):
     self.taCanvas.get_tk_widget().grid(row = 3, column = 1)
 
     #DTA
-    self.dtaFigure = Figure(figsize=(4.3,2), dpi=100)
+    self.dtaFigure = Figure(figsize=(4.5, 1.8), dpi=100)
     self.dtaPlot = self.dtaFigure.add_subplot(111)
     self.dtaPlot.set_ylim(-1, 12)
     self.dtaPredictions = [0.0] * 50
@@ -137,7 +135,7 @@ class Display(object):
     self.dtaCanvas.get_tk_widget().grid(row = 3, column = 2)
 
     #DTL
-    self.dtlFigure = Figure(figsize=(4.3,2), dpi=100)
+    self.dtlFigure = Figure(figsize=(4.5, 1.8), dpi=100)
     self.dtlPlot = self.dtlFigure.add_subplot(111)
     self.dtlPlot.set_ylim(-1, 12)
     self.dtlPredictions = [0.0] * 50
@@ -152,7 +150,7 @@ class Display(object):
 
 
     #DTR
-    self.dtrFigure = Figure(figsize=(4.3,2), dpi=100)
+    self.dtrFigure = Figure(figsize=(4.5, 1.8), dpi=100)
     self.dtrPlot = self.dtrFigure.add_subplot(111)
     self.dtrPlot.set_ylim(-1, 12)
     self.dtrPredictions = [0.0] * 50
@@ -166,7 +164,7 @@ class Display(object):
     self.dtrCanvas.get_tk_widget().grid(row = 4, column = 1)
 
     #DTB
-    self.dtbFigure = Figure(figsize=(4.3,2), dpi=100)
+    self.dtbFigure = Figure(figsize=(4.5, 1.8), dpi=100)
     self.dtbPlot = self.dtbFigure.add_subplot(111)
     self.dtbPlot.set_ylim(-1, 12)
     self.dtbPredictions = [0.0] * 50
@@ -179,11 +177,24 @@ class Display(object):
     self.dtbCanvas.draw()
     self.dtbCanvas.get_tk_widget().grid(row = 4, column = 2)
 
+    #DLF
+    self.wlfFigure = Figure(figsize=(4.5, 1.8), dpi=100)
+    self.wlfPlot = self.wlfFigure.add_subplot(111)
+    self.wlfPlot.set_ylim(-1, 9)
+    self.wlfPredictions = [0.0] * 50
+    self.wlfPredictionLine, = self.wlfPlot.plot(timeStepValues, self.wlfPredictions, 'g', label = "WLF(predict)")
+    self.wlfActualValues = [0.0] * 50
+    self.wlfActualLine, = self.wlfPlot.plot(timeStepValues, self.wlfActualValues, 'b', label="WLF(actual)")
+
+    self.wlfPlot.legend()
+    self.wlfCanvas = FigureCanvasTkAgg(self.wlfFigure, master=self.root)
+    self.wlfCanvas.draw()
+    self.wlfCanvas.get_tk_widget().grid(row = 5, column = 0)
 
     #Number of steps
     self.numberOfSteps = StringVar()
     self.numberOfStepsLabel = Label(self.root, textvariable = self.numberOfSteps)
-    self.numberOfStepsLabel.grid(row = 5, columnspan = 3)
+    self.numberOfStepsLabel.grid(row = 6, columnspan = 3)
     #self.numberOfStepsLabel.pack(side = "top", anchor = "w")
 
 
@@ -192,7 +203,7 @@ class Display(object):
 
 
   def reset(self):
-    self.canvas.delete("all")
+    self.voronoiCanvas.delete("all")
 
     self.image = Image.new('RGB', (WIDTH, HEIGHT))
     self.photoImage = None
@@ -219,7 +230,9 @@ class Display(object):
              distanceToRightPrediction,
              distanceBack,
              distanceBackPrediction,
-             wallAdjacent):
+             wallAdjacent,
+             wallLeftForward,
+             wallLeftForwardPrediction):
 
     #Update Steps
     self.numberOfSteps.set("Step: " + str(numberOfSteps))
@@ -243,10 +256,10 @@ class Display(object):
 
     # And update/create the canvas image:
     if self.image_handle is None:
-      self.image_handle = self.canvas.create_image(WIDTH/2,HEIGHT/2,
+      self.image_handle = self.voronoiCanvas.create_image(WIDTH/2,HEIGHT/2,
                                                image=self.photoImage)
     else:
-      self.canvas.itemconfig(self.image_handle, image=self.photoImage)
+      self.voronoiCanvas.itemconfig(self.image_handle, image=self.photoImage)
 
     #Update plots
 
@@ -350,6 +363,15 @@ class Display(object):
     self.dtbPredictionLine.set_ydata(self.dtbPredictions)
     self.dtbActualLine.set_ydata(self.dtbActualValues)
     self.dtbCanvas.draw()
+
+    #WLF
+    self.wlfPredictions.pop(0)
+    self.wlfPredictions.append(wallLeftForwardPrediction)
+    self.wlfActualValues.pop(0)
+    self.wlfActualValues.append(wallLeftForward)
+    self.wlfPredictionLine.set_ydata(self.wlfPredictions)
+    self.wlfActualLine.set_ydata(self.wlfActualValues)
+    self.wlfCanvas.draw()
 
     self.root.update()
 

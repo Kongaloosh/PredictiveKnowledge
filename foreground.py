@@ -42,8 +42,9 @@ def didTouchCumulant(phi):
 
 class Foreground:
 
-  def __init__(self, showDisplay = True):
+  def __init__(self, showDisplay = True, stepsBeforeUpdatingDisplay = 0):
     self.showDisplay = showDisplay
+    self.stepsBeforeUpdatingDisplay = stepsBeforeUpdatingDisplay
     self.gridWorld = GridWorld('model/grids', initialX=1, initialY = 1)
     self.behaviorPolicy = BehaviorPolicy()
 
@@ -125,6 +126,7 @@ class Foreground:
 
     '''
     #Layer 4 - Touch Adjacent (TA)
+    ----- ALIAS ---- 
     '''
 
     if simplePhi:
@@ -135,7 +137,7 @@ class Foreground:
       touchAdjacentGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
                              alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), isOffPolicy=True, name="TA")
                              
-
+    """
     def touchAdjacentCumulant(phi):
 
       touchAdjacent = 0.0
@@ -159,6 +161,17 @@ class Foreground:
 
 
     touchAdjacentGVF.gamma = touchAdjacentGama
+    """
+    def taLearn(lastState, action, newState):
+      return
+
+    def taPrediction(phi):
+      predict = max([self.gvfs['T'].prediction(phi), self.gvfs['TL'].prediction(phi), self.gvfs['TR'].prediction(phi), self.gvfs['TB'].prediction(phi)])
+      return predict
+
+    touchAdjacentGVF.prediction = taPrediction
+    touchAdjacentGVF.learn = taLearn
+
     self.gvfs[touchAdjacentGVF.name] = touchAdjacentGVF
 
     '''
@@ -263,6 +276,34 @@ class Foreground:
     distanceToBackGVF.policy = self.behaviorPolicy.turnRightPolicy
     self.gvfs[distanceToBackGVF.name] = distanceToBackGVF
 
+    # Wall left forward GVF (ie. how many steps the agent can take forward while keeping a wall on the left
+    if simplePhi:
+      wallLeftForwardGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
+                              alpha=0.70, isOffPolicy=True, name="WLF")
+    else:
+
+      wallLeftForwardGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
+                              alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), isOffPolicy=True, name="WLF")
+
+    def wallLeftForwardCumulant(phi):
+      wallLeftPredict = self.gvfs['TL'].prediction(phi)
+      if wallLeftPredict > touchThreshold:
+        return 1.0
+      else:
+        return 0.0
+
+    wallLeftForwardGVF.cumulant = wallLeftForwardCumulant
+
+    def wallLeftGamma(phi):
+      wallLeftPredict = self.gvfs['TL'].prediction(phi)
+      if wallLeftPredict > touchThreshold:
+        return 0.9
+      else:
+        return 0.0
+
+    wallLeftForwardGVF.gamma = wallLeftGamma
+    wallLeftForwardGVF.policy = self.behaviorPolicy.moveForwardPolicy
+    self.gvfs[wallLeftForwardGVF.name] = wallLeftForwardGVF
 
   def learn(self):
     for name, gvf in self.gvfs.items():
@@ -348,29 +389,35 @@ class Foreground:
       distanceBack = peak.distanceBehindToAdjacent(self.state['x'], self.state['y'], self.state['yaw'], self.gridWorld)
       distanceBackPrediction = self.gvfs['DTB'].prediction(self.phi)
 
+      wallLeftForward =peak.wallLeftForward(self.state['x'], self.state['y'], self.state['yaw'], self.gridWorld)
+      wallLeftForwardPrediction = self.gvfs['WLF'].prediction(self.phi)
+
       if self.showDisplay:
-        self.display.update(image=voronoi,
-                            numberOfSteps=self.actionCount,
-                            currentTouchPrediction=touchPrediction,
-                            wallInFront=inFront,
-                            didTouch=didTouch,
-                            turnLeftAndTouchPrediction=turnLeftAndTouchPrediction,
-                            wallOnLeft=onLeft,
-                            turnRightAndTouchPrediction=turnRightAndtouchPrediction,
-                            touchBehindPrediction = touchBehindPrediction,
-                            wallBehind = isBehind,
-                            touchAdjacentPrediction=isWallAdjacentPrediction,
-                            wallAdjacent=wallAdjacent,
-                            wallOnRight=onRight,
-                            distanceToAdjacent = distanceToAdjacent,
-                            distanceToAdjacentPrediction = distanceToAdjacentPrediction,
-                            distanceToLeft = distanceLeft,
-                            distanceToLeftPrediction = distanceLeftPrediction,
-                            distanceToRight = distanceRight,
-                            distanceToRightPrediction = distanceRightPrediction,
-                            distanceBack = distanceBack,
-                            distanceBackPrediction = distanceBackPrediction
-                            )
+        if self.actionCount > self.stepsBeforeUpdatingDisplay:
+          self.display.update(image=voronoi,
+                              numberOfSteps=self.actionCount,
+                              currentTouchPrediction=touchPrediction,
+                              wallInFront=inFront,
+                              didTouch=didTouch,
+                              turnLeftAndTouchPrediction=turnLeftAndTouchPrediction,
+                              wallOnLeft=onLeft,
+                              turnRightAndTouchPrediction=turnRightAndtouchPrediction,
+                              touchBehindPrediction = touchBehindPrediction,
+                              wallBehind = isBehind,
+                              touchAdjacentPrediction=isWallAdjacentPrediction,
+                              wallAdjacent=wallAdjacent,
+                              wallOnRight=onRight,
+                              distanceToAdjacent = distanceToAdjacent,
+                              distanceToAdjacentPrediction = distanceToAdjacentPrediction,
+                              distanceToLeft = distanceLeft,
+                              distanceToLeftPrediction = distanceLeftPrediction,
+                              distanceToRight = distanceRight,
+                              distanceToRightPrediction = distanceRightPrediction,
+                              distanceBack = distanceBack,
+                              distanceBackPrediction = distanceBackPrediction,
+                              wallLeftForward = wallLeftForward,
+                              wallLeftForwardPrediction = wallLeftForwardPrediction
+                              )
       # time.sleep(1.0)
 
 
@@ -437,5 +484,5 @@ class Foreground:
     print("Mission ended")
     # Mission has ended.
 
-fg = Foreground(showDisplay = False)
+fg = Foreground(showDisplay = True, stepsBeforeUpdatingDisplay = 0)
 fg.start()

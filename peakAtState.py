@@ -70,3 +70,24 @@ def distanceRightToAdjacent(currentX, currentY, yaw, gridWorld):
 
 def distanceBehindToAdjacent(currentX, currentY, yaw, gridWorld):
   return distanceToAdjacent(currentX, currentY, yaw + 180, gridWorld)
+
+
+def wallLeftForward(currentX, currentY, yaw, gridWorld):
+  if not isWallOnRight(currentX, currentY, yaw, gridWorld):
+    return 0
+  else:
+    if isWallInFront(currentX, currentY, yaw, gridWorld):
+      return 1
+    else:
+      if (yaw == 0.0):
+        # Facing south
+        return 1 + 0.9 * wallLeftForward(currentX, currentY + 1, yaw, gridWorld)
+      elif (yaw == 90.0):
+        # Facing west
+        return 1 + 0.9 * wallLeftForward(currentX - 1, currentY, yaw, gridWorld)
+      elif (yaw == 180.0):
+        # Facing north
+        return 1 + 0.9 * wallLeftForward(currentX, currentY - 1, yaw, gridWorld)
+      elif (yaw == -90 or yaw == 270):
+        # Facing east
+        return 1 + 0.9 * wallLeftForward(currentX + 1, currentY, yaw, gridWorld)

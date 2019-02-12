@@ -65,7 +65,7 @@ class GridWorld:
     didTouch = False
 
     if action == 'turn_left':
-      self.currentYaw = (self.currentYaw + 90) % 360
+      self.currentYaw = (self.currentYaw - 90) % 360
     elif action == 'turn_right':
       self.currentYaw = (self.currentYaw + 90) % 360
     elif action == 'extend_hand':
