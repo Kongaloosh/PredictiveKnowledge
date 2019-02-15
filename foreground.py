@@ -58,6 +58,15 @@ class Foreground:
     self.phi = self.stateRepresentation.getEmptyPhi()
     self.oldPhi = self.stateRepresentation.getEmptyPhi()
 
+  def saveGVFweights(self):
+    for name, gvf in self.gvfs.items():
+      gvf.saveWeightsToPickle('weights/' + str(gvf.name))
+
+  def readGVFweights(self):
+    for name, gvf in self.gvfs.items():
+      print("Reading weights for " + str(name))
+      gvf.readWeightsFromPickle('weights/' + str(gvf.name))
+
   def configureGVFs(self, simplePhi=False):
     touchThreshold = 0.8  # The prediction value before it is considered to be true.
     '''

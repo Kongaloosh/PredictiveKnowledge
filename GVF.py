@@ -3,7 +3,7 @@ import numpy
 #from TileCoder import *
 #from Coder import *
 from StateRepresentation import *
-
+import pickle
 
 class GVF:
     def __init__(self, featureVectorLength, alpha, isOffPolicy, name = "GVF name"):
@@ -35,6 +35,18 @@ class GVF:
         self.averageTD = 0
         self.i = 1
 
+    def saveWeightsToPickle(self, file):
+        pickleDict = {'weights': self.weights, 'hWeights': self.hWeights, 'hHatWeights': self.hHatWeights}
+        with open(file, 'wb') as outfile:
+            pickle.dump(pickleDict, outfile)
+
+    def readWeightsFromPickle(self, file):
+        with open(file, 'rb') as inFile:
+            pickleDict = pickle.load(inFile)
+            print("read pickle dictionary")
+            self.weights = pickleDict['weights']
+            self.hWeights = pickleDict['hWeights']
+            self.hHatWeights = pickleDict['hHatWeights']
 
     def reset(self):
         self.lastState = 0

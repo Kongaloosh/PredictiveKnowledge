@@ -73,11 +73,11 @@ def distanceBehindToAdjacent(currentX, currentY, yaw, gridWorld):
 
 
 def wallLeftForward(currentX, currentY, yaw, gridWorld):
-  if not isWallOnRight(currentX, currentY, yaw, gridWorld):
+  if not isWallOnLeft(currentX, currentY, yaw, gridWorld):
     return 0
   else:
     if isWallInFront(currentX, currentY, yaw, gridWorld):
-      return 1
+      return 10 #This is at the end facing a wall, so the value is a/(1-r) = 1 / (1-0.9) = 1/.1 = 10
     else:
       if (yaw == 0.0):
         # Facing south

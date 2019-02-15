@@ -3,8 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="ec2d5d68-13b9-449c-9aba-55768e8b814b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GridWorld.py" beforeDir="false" afterPath="$PROJECT_DIR$/GridWorld.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/StateRepresentation.py" beforeDir="false" afterPath="$PROJECT_DIR$/StateRepresentation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GVF.py" beforeDir="false" afterPath="$PROJECT_DIR$/GVF.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/display.py" beforeDir="false" afterPath="$PROJECT_DIR$/display.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/foreground.py" beforeDir="false" afterPath="$PROJECT_DIR$/foreground.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/peakAtState.py" beforeDir="false" afterPath="$PROJECT_DIR$/peakAtState.py" afterDir="false" />
@@ -17,23 +16,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/StateRepresentation.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="230">
-              <caret line="29" column="19" selection-start-line="29" selection-start-column="19" selection-end-line="29" selection-end-column="19" />
-              <folding>
-                <element signature="e#25#48#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/foreground.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="171">
-              <caret line="396" column="35" selection-start-line="396" selection-start-column="35" selection-end-line="396" selection-end-column="35" />
+            <state relative-caret-position="201">
+              <caret line="446" column="32" lean-forward="true" selection-start-line="446" selection-start-column="32" selection-end-line="446" selection-end-column="32" />
               <folding>
                 <element signature="e#1#38#0" expanded="true" />
               </folding>
@@ -44,7 +31,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file:///usr/lib/python3/dist-packages/apport_python_hook.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="215">
+            <state relative-caret-position="705">
               <caret line="48" selection-start-line="48" selection-end-line="48" />
             </state>
           </provider>
@@ -68,11 +55,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/display.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="441">
-              <caret line="261" column="19" selection-start-line="261" selection-start-column="19" selection-end-line="261" selection-end-column="19" />
+            <state relative-caret-position="5505">
+              <caret line="369" column="11" selection-start-line="369" selection-start-column="11" selection-end-line="369" selection-end-column="11" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
               </folding>
@@ -83,26 +70,20 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/GVF.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1080">
-              <caret line="76" column="9" selection-start-line="76" selection-start-column="8" selection-end-line="76" selection-end-column="49" />
+            <state relative-caret-position="347">
+              <caret line="287" selection-start-line="287" selection-end-line="287" />
+              <folding>
+                <element signature="e#0#12#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/PIL/ImageTk.py">
+        <entry file="file://$PROJECT_DIR$/GridWorld.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2805">
-              <caret line="187" selection-start-line="187" selection-end-line="187" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/BehaviorPolicy.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="27" column="22" selection-start-line="27" selection-start-column="22" selection-end-line="27" selection-end-column="22" />
+            <state relative-caret-position="136">
+              <caret line="16" column="11" selection-start-line="16" selection-end-line="17" selection-end-column="44" />
               <folding>
                 <element signature="e#0#26#0" expanded="true" />
               </folding>
@@ -113,8 +94,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/peakAtState.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="718">
-              <caret line="91" column="21" lean-forward="true" selection-start-line="91" selection-start-column="21" selection-end-line="91" selection-end-column="21" />
+            <state relative-caret-position="1170">
+              <caret line="79" column="100" selection-start-line="79" selection-start-column="100" selection-end-line="79" selection-end-column="100" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -126,10 +107,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>touch</find>
-      <find>previousInFront</find>
-      <find>previousTouch</find>
-      <find>peak</find>
       <find>.tk(</find>
       <find>sleep</find>
       <find>timeStepValues =</find>
@@ -156,6 +133,10 @@
       <find>vorono</find>
       <find>self.canvas</find>
       <find>show</find>
+      <find>behaviorPo</find>
+      <find>behavior</find>
+      <find>readGV</find>
+      <find>prediction</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -168,15 +149,16 @@
         <option value="$PROJECT_DIR$/BehaviorPolicy.py" />
         <option value="$PROJECT_DIR$/GridWorld.py" />
         <option value="$PROJECT_DIR$/StateRepresentation.py" />
+        <option value="$PROJECT_DIR$/display.py" />
         <option value="$PROJECT_DIR$/peakAtState.py" />
         <option value="$PROJECT_DIR$/foreground.py" />
-        <option value="$PROJECT_DIR$/display.py" />
+        <option value="$PROJECT_DIR$/GVF.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="160" />
-    <option name="y" value="47" />
+    <option name="y" value="27" />
     <option name="width" value="1760" />
     <option name="height" value="1033" />
   </component>
@@ -185,7 +167,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -197,6 +178,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -278,7 +260,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="160" y="47" width="1760" height="1033" extended-state="0" />
+    <frame x="160" y="27" width="1760" height="1033" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.087507196" />
@@ -359,16 +341,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/GridWorld.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="825">
-          <caret line="63" selection-start-line="63" selection-end-line="63" />
-          <folding>
-            <element signature="e#0#26#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="26100">
@@ -376,10 +348,44 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/StateRepresentation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1665">
+          <caret line="117" selection-start-line="117" selection-end-line="117" />
+          <folding>
+            <element signature="e#25#48#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/lib/python3/dist-packages/apport_python_hook.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="705">
+          <caret line="48" selection-start-line="48" selection-end-line="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Voronoi.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="870">
+          <caret line="66" column="3" selection-start-line="66" selection-start-column="3" selection-end-line="66" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/tiles.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1905">
           <caret line="129" selection-start-line="129" selection-end-line="129" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/display.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="5505">
+          <caret line="369" column="11" selection-start-line="369" selection-start-column="11" selection-end-line="369" selection-end-column="11" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -400,63 +406,42 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/GVF.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1080">
-          <caret line="76" column="9" selection-start-line="76" selection-start-column="8" selection-end-line="76" selection-end-column="49" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/StateRepresentation.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="230">
-          <caret line="29" column="19" selection-start-line="29" selection-start-column="19" selection-end-line="29" selection-end-column="19" />
-          <folding>
-            <element signature="e#25#48#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/peakAtState.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="718">
-          <caret line="91" column="21" lean-forward="true" selection-start-line="91" selection-start-column="21" selection-end-line="91" selection-end-column="21" />
+        <state relative-caret-position="1170">
+          <caret line="79" column="100" selection-start-line="79" selection-start-column="100" selection-end-line="79" selection-end-column="100" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Voronoi.py">
+    <entry file="file://$PROJECT_DIR$/GridWorld.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="870">
-          <caret line="66" column="3" selection-start-line="66" selection-start-column="3" selection-end-line="66" selection-end-column="3" />
+        <state relative-caret-position="136">
+          <caret line="16" column="11" selection-start-line="16" selection-end-line="17" selection-end-column="44" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file:///usr/lib/python3/dist-packages/apport_python_hook.py">
+    <entry file="file://$PROJECT_DIR$/GVF.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="215">
-          <caret line="48" selection-start-line="48" selection-end-line="48" />
+        <state relative-caret-position="347">
+          <caret line="287" selection-start-line="287" selection-end-line="287" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/foreground.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="171">
-          <caret line="396" column="35" selection-start-line="396" selection-start-column="35" selection-end-line="396" selection-end-column="35" />
+        <state relative-caret-position="201">
+          <caret line="446" column="32" lean-forward="true" selection-start-line="446" selection-start-column="32" selection-end-line="446" selection-end-column="32" />
           <folding>
             <element signature="e#1#38#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/display.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="441">
-          <caret line="261" column="19" selection-start-line="261" selection-start-column="19" selection-end-line="261" selection-end-column="19" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
           </folding>
         </state>
       </provider>

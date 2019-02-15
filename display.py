@@ -180,7 +180,7 @@ class Display(object):
     #DLF
     self.wlfFigure = Figure(figsize=(4.5, 1.8), dpi=100)
     self.wlfPlot = self.wlfFigure.add_subplot(111)
-    self.wlfPlot.set_ylim(-1, 9)
+    self.wlfPlot.set_ylim(-1, 11)
     self.wlfPredictions = [0.0] * 50
     self.wlfPredictionLine, = self.wlfPlot.plot(timeStepValues, self.wlfPredictions, 'g', label = "WLF(predict)")
     self.wlfActualValues = [0.0] * 50
