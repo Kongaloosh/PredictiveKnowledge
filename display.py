@@ -211,9 +211,11 @@ class Display(object):
     self.voronoiImage = Image.new('RGB', (WIDTH, HEIGHT))
     self.voronoiPhotoImage = None
     self.voronoiImage_handle = None
+    self.gameImageHandle = None
     self.current_frame = 0
 
   def update(self, voronoiImage,
+             gameImage,
              numberOfSteps,
              currentTouchPrediction,
              didTouch,
@@ -263,6 +265,13 @@ class Display(object):
                                                image=self.voronoiPhotoImage)
     else:
       self.voronoiCanvas.itemconfig(self.voronoiImage_handle, image=self.voronoiPhotoImage)
+
+    self.gamePhotoImage = ImageTk.PhotoImage(gameImage)
+    if self.gameImageHandle is None:
+      self.gameImageHandle = self.gameCanvas.create_image(WIDTH/2, HEIGHT /2,
+                                                          image=self.gamePhotoImage)
+    else:
+      self.gameCanvas.itemconfig(self.gameImageHandle, image=self.gamePhotoImage)
 
     #Update plots
 

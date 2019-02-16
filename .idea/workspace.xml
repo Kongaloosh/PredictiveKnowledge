@@ -25,11 +25,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/foreground.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="182">
-              <caret line="408" column="39" selection-start-line="408" selection-start-column="39" selection-end-line="408" selection-end-column="39" />
+            <state relative-caret-position="-624">
+              <caret line="431" selection-start-line="431" selection-end-line="431" />
               <folding>
                 <element signature="e#1#38#0" expanded="true" />
               </folding>
@@ -55,11 +55,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/display.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1254">
-              <caret line="267" lean-forward="true" selection-start-line="267" selection-end-line="267" />
+            <state relative-caret-position="182">
+              <caret line="213" column="27" selection-start-line="213" selection-start-column="27" selection-end-line="213" selection-end-column="27" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
               </folding>
@@ -116,10 +116,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>self.actionCount</find>
-      <find>taking action</find>
-      <find>Initializing</find>
-      <find>GridWorld(</find>
       <find>Initializing grid world</find>
       <find>voronoi</find>
       <find>self.display</find>
@@ -135,7 +131,6 @@
       <find>&gt;</find>
       <find>vorono</find>
       <find>self.canvas</find>
-      <find>show</find>
       <find>behaviorPo</find>
       <find>behavior</find>
       <find>readGV</find>
@@ -146,6 +141,11 @@
       <find>show(</find>
       <find>observation</find>
       <find>in</find>
+      <find>update(</find>
+      <find>show</find>
+      <find>.show</find>
+      <find>updateUI</find>
+      <find>voronoiImage_handle</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -161,8 +161,8 @@
         <option value="$PROJECT_DIR$/StateRepresentation.py" />
         <option value="$PROJECT_DIR$/GVF.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
-        <option value="$PROJECT_DIR$/display.py" />
         <option value="$PROJECT_DIR$/foreground.py" />
+        <option value="$PROJECT_DIR$/display.py" />
       </list>
     </option>
   </component>
@@ -300,6 +300,16 @@
           <line>132</line>
           <option name="timeStamp" value="2" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/foreground.py</url>
+          <line>379</line>
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/display.py</url>
+          <line>269</line>
+          <option name="timeStamp" value="18" />
+        </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
@@ -406,16 +416,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/GridWorld.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="177">
-          <caret line="121" column="8" selection-start-line="121" selection-start-column="8" selection-end-line="121" selection-end-column="8" />
-          <folding>
-            <element signature="e#0#26#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/StateRepresentation.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="375">
@@ -443,22 +443,32 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/display.py">
+    <entry file="file://$PROJECT_DIR$/GridWorld.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1254">
-          <caret line="267" lean-forward="true" selection-start-line="267" selection-end-line="267" />
+        <state relative-caret-position="177">
+          <caret line="121" column="8" selection-start-line="121" selection-start-column="8" selection-end-line="121" selection-end-column="8" />
           <folding>
-            <element signature="e#0#23#0" expanded="true" />
+            <element signature="e#0#26#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/foreground.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="182">
-          <caret line="408" column="39" selection-start-line="408" selection-start-column="39" selection-end-line="408" selection-end-column="39" />
+        <state relative-caret-position="-624">
+          <caret line="431" selection-start-line="431" selection-end-line="431" />
           <folding>
             <element signature="e#1#38#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/display.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="182">
+          <caret line="213" column="27" selection-start-line="213" selection-start-column="27" selection-end-line="213" selection-end-column="27" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
           </folding>
         </state>
       </provider>

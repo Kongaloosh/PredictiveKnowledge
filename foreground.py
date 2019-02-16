@@ -346,6 +346,7 @@ class Foreground:
       inFront = peak.isWallInFront(self.state['x'], self.state['y'], self.state['yaw'], self.gridWorld)
       touchPrediction = self.gvfs['T'].prediction(self.phi)
 
+      gameImage = Image.frombytes('RGB', (WIDTH, HEIGHT), bytes(frame))
 
       '''
       #For debugging
@@ -406,6 +407,7 @@ class Foreground:
       if self.showDisplay:
         if self.actionCount > self.stepsBeforeUpdatingDisplay:
           self.display.update(voronoiImage=voronoi,
+                              gameImage = gameImage,
                               numberOfSteps=self.actionCount,
                               currentTouchPrediction=touchPrediction,
                               wallInFront=inFront,
