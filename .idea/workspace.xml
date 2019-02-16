@@ -2,19 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ec2d5d68-13b9-449c-9aba-55768e8b814b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GVF.py" beforeDir="false" afterPath="$PROJECT_DIR$/GVF.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/StateRepresentation.py" beforeDir="false" afterPath="$PROJECT_DIR$/StateRepresentation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/foreground.py" beforeDir="false" afterPath="$PROJECT_DIR$/foreground.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/weights/DTA" beforeDir="false" afterPath="$PROJECT_DIR$/weights/DTA" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/weights/DTB" beforeDir="false" afterPath="$PROJECT_DIR$/weights/DTB" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/weights/DTL" beforeDir="false" afterPath="$PROJECT_DIR$/weights/DTL" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/weights/DTR" beforeDir="false" afterPath="$PROJECT_DIR$/weights/DTR" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/weights/T" beforeDir="false" afterPath="$PROJECT_DIR$/weights/T" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/weights/TB" beforeDir="false" afterPath="$PROJECT_DIR$/weights/TB" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/weights/TL" beforeDir="false" afterPath="$PROJECT_DIR$/weights/TL" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/weights/TR" beforeDir="false" afterPath="$PROJECT_DIR$/weights/TR" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/weights/WLF" beforeDir="false" afterPath="$PROJECT_DIR$/weights/WLF" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -78,14 +66,23 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/GVF.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="246">
-              <caret line="52" column="34" selection-start-line="52" selection-start-column="34" selection-end-line="52" selection-end-column="34" />
+            <state relative-caret-position="735">
+              <caret line="53" lean-forward="true" selection-start-line="53" selection-end-line="53" />
               <folding>
                 <element signature="e#0#12#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="17" column="8" selection-start-line="17" selection-start-column="8" selection-end-line="17" selection-end-column="8" />
             </state>
           </provider>
         </entry>
@@ -146,8 +143,8 @@
       <find>self.state =</find>
       <find>save</find>
       <find>show(</find>
-      <find>in</find>
       <find>observation</find>
+      <find>in</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -164,6 +161,7 @@
         <option value="$PROJECT_DIR$/foreground.py" />
         <option value="$PROJECT_DIR$/StateRepresentation.py" />
         <option value="$PROJECT_DIR$/GVF.py" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -274,13 +272,13 @@
     <frame x="160" y="27" width="1760" height="1033" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.087507196" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.087507196" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="bottom" id="Run" order="2" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.3550885" />
+      <window_info anchor="bottom" id="Debug" order="3" visible="true" weight="0.3550885" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -454,11 +452,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/GVF.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="246">
-          <caret line="52" column="34" selection-start-line="52" selection-start-column="34" selection-end-line="52" selection-end-column="34" />
+        <state relative-caret-position="735">
+          <caret line="53" lean-forward="true" selection-start-line="53" selection-end-line="53" />
           <folding>
             <element signature="e#0#12#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="17" column="8" selection-start-line="17" selection-start-column="8" selection-end-line="17" selection-end-column="8" />
         </state>
       </provider>
     </entry>
