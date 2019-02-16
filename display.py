@@ -34,7 +34,10 @@ class Display(object):
     self.root.wm_title("GVF Knowledge")
 
     self.voronoiCanvas = Canvas(self.root, borderwidth=0, highlightthickness=0, width=WIDTH, height=HEIGHT, bg="black")
-    self.voronoiCanvas.grid(row = 0, columnspan = 3)
+    self.voronoiCanvas.grid(row = 0, column = 0)
+
+    self.gameCanvas = Canvas(self.root, borderwidth=0, highlightthickness=0, width=WIDTH, height=HEIGHT, bg="black")
+    self.gameCanvas.grid(row = 0, column = 1)
 
     #Did touch display
     self.didTouch = StringVar()
@@ -205,12 +208,12 @@ class Display(object):
   def reset(self):
     self.voronoiCanvas.delete("all")
 
-    self.image = Image.new('RGB', (WIDTH, HEIGHT))
-    self.photoImage = None
-    self.image_handle = None
+    self.voronoiImage = Image.new('RGB', (WIDTH, HEIGHT))
+    self.voronoiPhotoImage = None
+    self.voronoiImage_handle = None
     self.current_frame = 0
 
-  def update(self, image,
+  def update(self, voronoiImage,
              numberOfSteps,
              currentTouchPrediction,
              didTouch,
@@ -245,21 +248,21 @@ class Display(object):
 
     #Update game image
     #change from BGR to RGB
-    l = len(image)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    l = len(voronoiImage)
+    voronoiImage = cv2.cvtColor(voronoiImage, cv2.COLOR_BGR2RGB)
     # convert the cv2 images to PIL format...
-    self.image = Image.fromarray(image)
+    self.voronoiImage = Image.fromarray(voronoiImage)
 
     # ...and then to ImageTk format
-    self.photoImage = ImageTk.PhotoImage(self.image)
+    self.voronoiPhotoImage = ImageTk.PhotoImage(self.voronoiImage)
 
 
     # And update/create the canvas image:
-    if self.image_handle is None:
-      self.image_handle = self.voronoiCanvas.create_image(WIDTH/2,HEIGHT/2,
-                                               image=self.photoImage)
+    if self.voronoiImage_handle is None:
+      self.voronoiImage_handle = self.voronoiCanvas.create_image(WIDTH/2,HEIGHT/2,
+                                               image=self.voronoiPhotoImage)
     else:
-      self.voronoiCanvas.itemconfig(self.image_handle, image=self.photoImage)
+      self.voronoiCanvas.itemconfig(self.voronoiImage_handle, image=self.voronoiPhotoImage)
 
     #Update plots
 

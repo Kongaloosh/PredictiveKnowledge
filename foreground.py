@@ -405,7 +405,7 @@ class Foreground:
 
       if self.showDisplay:
         if self.actionCount > self.stepsBeforeUpdatingDisplay:
-          self.display.update(image=voronoi,
+          self.display.update(voronoiImage=voronoi,
                               numberOfSteps=self.actionCount,
                               currentTouchPrediction=touchPrediction,
                               wallInFront=inFront,
@@ -495,5 +495,5 @@ class Foreground:
     print("Mission ended")
     # Mission has ended.
 
-fg = Foreground(showDisplay = True, stepsBeforeUpdatingDisplay = 70000)
+fg = Foreground(showDisplay = True, stepsBeforeUpdatingDisplay = 0)
 fg.start()
