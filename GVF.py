@@ -42,11 +42,15 @@ class GVF:
 
     def readWeightsFromPickle(self, file):
         with open(file, 'rb') as inFile:
+            error = False
             pickleDict = pickle.load(inFile)
             print("read pickle dictionary")
+
             self.weights = pickleDict['weights']
             self.hWeights = pickleDict['hWeights']
             self.hHatWeights = pickleDict['hHatWeights']
+
+            print("Read weights. ")
 
     def reset(self):
         self.lastState = 0

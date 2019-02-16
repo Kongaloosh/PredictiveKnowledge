@@ -8,6 +8,7 @@ import numpy as np
 from tiles import *
 import json
 import time
+import pickle
 from BehaviorPolicy import *
 
 # image tiles
@@ -54,6 +55,14 @@ class StateRepresentation(object):
       point = self.randomXs[i], self.randomYs[i]
       self.pointsOfInterest.append(point)
 
+  def savePointsOfInterest(self, file):
+    with open(file, 'wb') as outfile:
+      pickle.dump(self.pointsOfInterest, outfile)
+
+  def readPointsOfInterest(self, file):
+    with open(file, 'rb') as inFile:
+      self.pointsOfInterest = pickle.load(inFile)
+      print("Read points of interest")
 
   def getRGBPixelFromFrame(self, frame, x, y):
     length = len(frame)

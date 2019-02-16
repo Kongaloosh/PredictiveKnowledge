@@ -61,11 +61,13 @@ class Foreground:
   def saveGVFweights(self):
     for name, gvf in self.gvfs.items():
       gvf.saveWeightsToPickle('weights/' + str(gvf.name))
+    self.stateRepresentation.savePointsOfInterest('weights/pointsofinterest')
 
   def readGVFweights(self):
     for name, gvf in self.gvfs.items():
       print("Reading weights for " + str(name))
       gvf.readWeightsFromPickle('weights/' + str(gvf.name))
+    self.stateRepresentation.readPointsOfInterest('weights/pointsofinterest')
 
   def configureGVFs(self, simplePhi=False):
     touchThreshold = 0.8  # The prediction value before it is considered to be true.
@@ -493,5 +495,5 @@ class Foreground:
     print("Mission ended")
     # Mission has ended.
 
-fg = Foreground(showDisplay = True, stepsBeforeUpdatingDisplay = 0)
+fg = Foreground(showDisplay = True, stepsBeforeUpdatingDisplay = 70000)
 fg.start()
