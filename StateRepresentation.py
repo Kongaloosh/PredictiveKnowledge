@@ -5,6 +5,9 @@
 from constants import *
 
 import numpy as np
+#We want the hashing for tiles to be deterministic. So set random seed.
+import random
+random.seed(9000)
 from tiles import *
 import json
 import time

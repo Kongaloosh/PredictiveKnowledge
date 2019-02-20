@@ -506,6 +506,6 @@ class Foreground:
     # Mission has ended.
 
 #fg.readGVFweights()
-fg = Foreground(showDisplay = True, stepsBeforeUpdatingDisplay = 0, stepsBeforePromptingForAction = 10)
+fg = Foreground(showDisplay = True, stepsBeforeUpdatingDisplay = 0, stepsBeforePromptingForAction = 120000)
 
 fg.start()
