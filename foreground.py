@@ -42,14 +42,15 @@ def didTouchCumulant(phi):
 
 class Foreground:
 
-  def __init__(self, showDisplay = True, stepsBeforeUpdatingDisplay = 0):
+  def __init__(self, showDisplay = True, stepsBeforeUpdatingDisplay = 0, stepsBeforePromptingForAction = 0):
     self.showDisplay = showDisplay
+    self.stepsBeforePromptingForAction = stepsBeforePromptingForAction
     self.stepsBeforeUpdatingDisplay = stepsBeforeUpdatingDisplay
     self.gridWorld = GridWorld('model/grids', initialX=1, initialY = 1)
     self.behaviorPolicy = BehaviorPolicy()
 
     if self.showDisplay:
-      self.display = Display()
+      self.display = Display(self)
     self.gvfs = {}
     self.configureGVFs(simplePhi=USE_SIMPLE_PHI)
     self.stateRepresentation = StateRepresentation(self.gvfs)
@@ -338,10 +339,10 @@ class Foreground:
       # cv2.imshow('My Image', voronoi)
       # cv2.waitKey(0)
 
-      if self.oldState == False:
+      if self.state == False:
         didTouch = False
       else:
-        didTouch = self.oldState['touchData']
+        didTouch = self.state['touchData']
 
       inFront = peak.isWallInFront(self.state['x'], self.state['y'], self.state['yaw'], self.gridWorld)
       touchPrediction = self.gvfs['T'].prediction(self.phi)
@@ -433,7 +434,60 @@ class Foreground:
                               )
       # time.sleep(1.0)
 
+  def learnFromBehaviorPolicyAction(self):
+      action = self.behaviorPolicy.mostlyForwardAndTouchPolicy(self.state)
+      self.learnFromAction(action)
 
+  def learnFromAction(self, action):
+    self.action = action
+    self.actionCount += 1
+    if self.actionCount % 100 == 0:
+      print("Step " + str(self.actionCount) + " ... ")
+    # print(".", end="")
+
+    self.oldState = self.state
+    self.oldPhi = self.phi
+
+
+    observation = self.gridWorld.takeAction(self.action)
+    # time.sleep(0.2)
+    self.state = observation
+
+    # print("==========")
+    # print("Action was: " + str(self.action))
+    # print("Number of observations since last: " + str(self.state.number_of_observations_since_last_state))
+    # print("Length of observation array: " + str(len(self.state.observations)))
+    # print("Number of video frames: " + str(len(self.state.video_frames)))
+    if self.oldState:
+      yaw = self.oldState['yaw']
+      xPos = self.oldState['x']
+      zPos = self.oldState['y']
+      # print("From observation: (" + str(xPos) + ", " + str(zPos) + "), yaw:" + str(yaw))
+
+    yaw = self.state['yaw']
+    xPos = self.state['x']
+    zPos = self.state['y']
+    # print("To observation: (" + str(xPos) + ", " + str(zPos) + "), yaw:" + str(yaw))
+    """
+    if (self.action == "turn -1"):
+      #Debug the video
+      i = 0
+      for videoframe in self.state.video_frames:
+        cmap = Image.frombytes('RGB', (WIDTH, HEIGHT), bytes(videoframe.pixels))
+        cmap.show(title = "Image: " + str(i))
+        i+=1
+      i = i
+    """
+    # print("")
+
+    self.phi = self.stateRepresentation.getPhi(previousPhi=self.oldPhi, state=self.state,
+                                               previousAction=self.action, simplePhi=USE_SIMPLE_PHI)
+
+    # Do the learning
+    self.learn()
+
+    # Update our display (for debugging and progress reporting)
+    self.updateUI()
 
   def start(self):
 
@@ -442,61 +496,19 @@ class Foreground:
     self.action = self.behaviorPolicy.ACTIONS['extend_hand']
 
     # Loop until mission ends:
-    while True:
-      self.actionCount += 1
-      if self.actionCount % 100 == 0:
-        print("Step " + str(self.actionCount) + " ... ")
-      # print(".", end="")
-
-      self.oldState = self.state
-      self.oldPhi = self.phi
-
+    for i in range(self.stepsBeforePromptingForAction):
       # Select and send action. Need to sleep to give time for simulator to respond
-      self.action = self.behaviorPolicy.mostlyForwardAndTouchPolicy(self.state)
-      observation = self.gridWorld.takeAction(self.action)
-      #time.sleep(0.2)
-      self.state = observation
+      self.learnFromBehaviorPolicyAction()
 
-      #print("==========")
-      #print("Action was: " + str(self.action))
-      # print("Number of observations since last: " + str(self.state.number_of_observations_since_last_state))
-      # print("Length of observation array: " + str(len(self.state.observations)))
-      # print("Number of video frames: " + str(len(self.state.video_frames)))
-      if self.oldState:
-        yaw = self.oldState['yaw']
-        xPos = self.oldState['x']
-        zPos = self.oldState['y']
-        #print("From observation: (" + str(xPos) + ", " + str(zPos) + "), yaw:" + str(yaw))
-
-      yaw = self.state['yaw']
-      xPos = self.state['x']
-      zPos = self.state['y']
-      #print("To observation: (" + str(xPos) + ", " + str(zPos) + "), yaw:" + str(yaw))
-      """
-      if (self.action == "turn -1"):
-        #Debug the video
-        i = 0
-        for videoframe in self.state.video_frames:
-          cmap = Image.frombytes('RGB', (WIDTH, HEIGHT), bytes(videoframe.pixels))
-          cmap.show(title = "Image: " + str(i))
-          i+=1
-        i = i
-      """
-      #print("")
-
-      self.phi = self.stateRepresentation.getPhi(previousPhi=self.oldPhi, state=self.state,
-                                                 previousAction=self.action, simplePhi=USE_SIMPLE_PHI)
-
-      # Do the learning
-      self.learn()
-
-      # Update our display (for debugging and progress reporting)
-      self.updateUI()
-
+    self.display.root.mainloop()
     print()
     print("Mission ended")
     # Mission has ended.
 
+<<<<<<< HEAD
 fg = Foreground(showDisplay = True, stepsBeforeUpdatingDisplay = 200000)
 #fg.readGVFweights()
+=======
+fg = Foreground(showDisplay = True, stepsBeforeUpdatingDisplay = 0, stepsBeforePromptingForAction = 10)
+>>>>>>> ControlAgentRefactor
 fg.start()
