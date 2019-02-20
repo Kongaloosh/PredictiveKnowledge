@@ -6,7 +6,10 @@ if sys.version_info[0] == 2:
   from Tkinter import *
 else:
   from tkinter import *
-
+from sys import platform as sys_pf
+if sys_pf == 'darwin':
+  import matplotlib
+  matplotlib.use("TkAgg")
 from PIL import ImageTk
 from PIL import Image
 
