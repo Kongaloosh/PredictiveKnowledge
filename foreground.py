@@ -505,10 +505,7 @@ class Foreground:
     print("Mission ended")
     # Mission has ended.
 
-<<<<<<< HEAD
-fg = Foreground(showDisplay = True, stepsBeforeUpdatingDisplay = 200000)
 #fg.readGVFweights()
-=======
 fg = Foreground(showDisplay = True, stepsBeforeUpdatingDisplay = 0, stepsBeforePromptingForAction = 10)
->>>>>>> ControlAgentRefactor
+
 fg.start()
