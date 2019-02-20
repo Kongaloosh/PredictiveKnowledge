@@ -497,5 +497,6 @@ class Foreground:
     print("Mission ended")
     # Mission has ended.
 
-fg = Foreground(showDisplay = True, stepsBeforeUpdatingDisplay = 0)
+fg = Foreground(showDisplay = True, stepsBeforeUpdatingDisplay = 200000)
+#fg.readGVFweights()
 fg.start()

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ec2d5d68-13b9-449c-9aba-55768e8b814b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/display.py" beforeDir="false" afterPath="$PROJECT_DIR$/display.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/foreground.py" beforeDir="false" afterPath="$PROJECT_DIR$/foreground.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -16,8 +16,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/StateRepresentation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="58" column="37" selection-start-line="58" selection-start-column="37" selection-end-line="58" selection-end-column="37" />
+            <state relative-caret-position="-519">
+              <caret line="109" column="10" selection-start-line="109" selection-start-column="10" selection-end-line="109" selection-end-column="10" />
               <folding>
                 <element signature="e#25#48#0" expanded="true" />
               </folding>
@@ -25,11 +25,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/foreground.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-624">
-              <caret line="431" selection-start-line="431" selection-end-line="431" />
+            <state relative-caret-position="702">
+              <caret line="499" column="67" selection-start-line="499" selection-start-column="67" selection-end-line="499" selection-end-column="67" />
               <folding>
                 <element signature="e#1#38#0" expanded="true" />
               </folding>
@@ -55,11 +55,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/display.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="182">
-              <caret line="213" column="27" selection-start-line="213" selection-start-column="27" selection-end-line="213" selection-end-column="27" />
+            <state relative-caret-position="4215">
+              <caret line="283" column="9" selection-start-line="283" selection-start-column="9" selection-end-line="283" selection-end-column="9" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
               </folding>
@@ -70,8 +70,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/GVF.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="735">
-              <caret line="53" lean-forward="true" selection-start-line="53" selection-end-line="53" />
+            <state relative-caret-position="150">
+              <caret line="15" column="22" selection-start-line="15" selection-start-column="8" selection-end-line="15" selection-end-column="22" />
               <folding>
                 <element signature="e#0#12#0" expanded="true" />
               </folding>
@@ -91,7 +91,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/GridWorld.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="177">
+            <state relative-caret-position="1695">
               <caret line="121" column="8" selection-start-line="121" selection-start-column="8" selection-end-line="121" selection-end-column="8" />
               <folding>
                 <element signature="e#0#26#0" expanded="true" />
@@ -116,18 +116,12 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>Initializing grid world</find>
-      <find>voronoi</find>
-      <find>self.display</find>
-      <find>threshold</find>
-      <find>Taking ac</find>
       <find>update</find>
       <find>TA</find>
       <find>'TA'</find>
       <find>&quot;TL&quot;</find>
       <find>learn(</find>
       <find>TA'</find>
-      <find>learn</find>
       <find>&gt;</find>
       <find>vorono</find>
       <find>self.canvas</find>
@@ -140,12 +134,18 @@
       <find>save</find>
       <find>show(</find>
       <find>observation</find>
-      <find>in</find>
       <find>update(</find>
       <find>show</find>
       <find>.show</find>
-      <find>updateUI</find>
       <find>voronoiImage_handle</find>
+      <find>updateUI</find>
+      <find>pointsOf</find>
+      <find>in</find>
+      <find>learn</find>
+      <find>pointsOfInter</find>
+      <find>prediction(</find>
+      <find>self.weights =</find>
+      <find>touchThre</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -161,14 +161,14 @@
         <option value="$PROJECT_DIR$/StateRepresentation.py" />
         <option value="$PROJECT_DIR$/GVF.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
-        <option value="$PROJECT_DIR$/foreground.py" />
         <option value="$PROJECT_DIR$/display.py" />
+        <option value="$PROJECT_DIR$/foreground.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="160" />
-    <option name="y" value="27" />
+    <option name="x" value="82" />
+    <option name="y" value="47" />
     <option name="width" value="1760" />
     <option name="height" value="1033" />
   </component>
@@ -270,16 +270,16 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="160" y="27" width="1760" height="1033" extended-state="0" />
+    <frame x="82" y="47" width="1760" height="1033" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.087507196" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.087507196" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="bottom" id="Run" order="2" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.3550885" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.3550885" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -302,13 +302,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/foreground.py</url>
-          <line>379</line>
-          <option name="timeStamp" value="17" />
+          <line>500</line>
+          <option name="timeStamp" value="25" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/display.py</url>
-          <line>269</line>
-          <option name="timeStamp" value="18" />
+          <url>file://$PROJECT_DIR$/foreground.py</url>
+          <line>69</line>
+          <option name="timeStamp" value="26" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -375,20 +375,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Voronoi.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="870">
-          <caret line="66" column="3" selection-start-line="66" selection-start-column="3" selection-end-line="66" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tiles.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1905">
-          <caret line="129" selection-start-line="129" selection-end-line="129" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/PIL/ImageTk.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2805">
@@ -406,30 +392,27 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/peakAtState.py">
+    <entry file="file://$PROJECT_DIR$/Voronoi.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1170">
-          <caret line="79" column="100" selection-start-line="79" selection-start-column="100" selection-end-line="79" selection-end-column="100" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="870">
+          <caret line="66" column="3" selection-start-line="66" selection-start-column="3" selection-end-line="66" selection-end-column="3" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/StateRepresentation.py">
+    <entry file="file://$PROJECT_DIR$/display.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="58" column="37" selection-start-line="58" selection-start-column="37" selection-end-line="58" selection-end-column="37" />
+        <state relative-caret-position="4215">
+          <caret line="283" column="9" selection-start-line="283" selection-start-column="9" selection-end-line="283" selection-end-column="9" />
           <folding>
-            <element signature="e#25#48#0" expanded="true" />
+            <element signature="e#0#23#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/GVF.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="735">
-          <caret line="53" lean-forward="true" selection-start-line="53" selection-end-line="53" />
+        <state relative-caret-position="150">
+          <caret line="15" column="22" selection-start-line="15" selection-start-column="8" selection-end-line="15" selection-end-column="22" />
           <folding>
             <element signature="e#0#12#0" expanded="true" />
           </folding>
@@ -445,7 +428,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/GridWorld.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="177">
+        <state relative-caret-position="1695">
           <caret line="121" column="8" selection-start-line="121" selection-start-column="8" selection-end-line="121" selection-end-column="8" />
           <folding>
             <element signature="e#0#26#0" expanded="true" />
@@ -453,22 +436,39 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/foreground.py">
+    <entry file="file://$PROJECT_DIR$/peakAtState.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-624">
-          <caret line="431" selection-start-line="431" selection-end-line="431" />
+        <state relative-caret-position="1170">
+          <caret line="79" column="100" selection-start-line="79" selection-start-column="100" selection-end-line="79" selection-end-column="100" />
           <folding>
-            <element signature="e#1#38#0" expanded="true" />
+            <element signature="e#0#11#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/display.py">
+    <entry file="file://$PROJECT_DIR$/tiles.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="182">
-          <caret line="213" column="27" selection-start-line="213" selection-start-column="27" selection-end-line="213" selection-end-column="27" />
+        <state relative-caret-position="1905">
+          <caret line="129" selection-start-line="129" selection-end-line="129" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/StateRepresentation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-519">
+          <caret line="109" column="10" selection-start-line="109" selection-start-column="10" selection-end-line="109" selection-end-column="10" />
           <folding>
-            <element signature="e#0#23#0" expanded="true" />
+            <element signature="e#25#48#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/foreground.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="702">
+          <caret line="499" column="67" selection-start-line="499" selection-start-column="67" selection-end-line="499" selection-end-column="67" />
+          <folding>
+            <element signature="e#1#38#0" expanded="true" />
           </folding>
         </state>
       </provider>
