@@ -30,7 +30,8 @@ DISPLAY_WIDTH = WIDTH
 DISPLAY_HEIGHT = 432 + video_height
 
 class Display(object):
-  def __init__(self):
+  def __init__(self, foreground):
+    self.foreground = foreground
     plt.ion() #turn matplot interactive on
     #self.root = Tk()
     self.root = Toplevel()
@@ -41,6 +42,25 @@ class Display(object):
 
     self.gameCanvas = Canvas(self.root, borderwidth=0, highlightthickness=0, width=WIDTH, height=HEIGHT, bg="black")
     self.gameCanvas.grid(row = 0, column = 1)
+
+    self.buttonFrame = Frame(self.root)
+    self.leftButton = Button(self.buttonFrame, text="Left", command = self.onLeftButton)
+    self.rightButton = Button(self.buttonFrame, text="Right", command = self.onRightButton)
+    self.forwardButton = Button(self.buttonFrame, text="Forward", command = self.onForewardButton)
+    self.extendButton = Button(self.buttonFrame, text="Extend Hand", command = self.onExtendHandButton)
+    self.stepLengthInput = Entry(self.buttonFrame)
+    self.stepLengthInput.insert(0, "Number of steps ...")
+    self.stepLengthInput.insert(0, "Number of steps ...")
+    self.takeStepsButton = Button(self.buttonFrame, text = "Take steps", command = self.onTakeStepsButton)
+
+    self.buttonFrame.grid(row=0, column=2, sticky="nsew")
+
+    self.leftButton.pack(side="top")
+    self.rightButton.pack(side="top")
+    self.forwardButton.pack(side = "top")
+    self.extendButton.pack(side = "top")
+    self.stepLengthInput.pack(side = "top")
+    self.takeStepsButton.pack(side = "top")
 
     #Did touch display
     self.didTouch = StringVar()
@@ -203,10 +223,34 @@ class Display(object):
     self.numberOfStepsLabel.grid(row = 6, columnspan = 3)
     #self.numberOfStepsLabel.pack(side = "top", anchor = "w")
 
+    #Status
+    self.status = StringVar()
+    self.statusLabel = Label(self.root, textvariable=self.status)
+    self.statusLabel.grid(row = 7, columnspan = 3)
+
 
     self.reset()
 
+  def onRightButton(self):
+    self.foreground.learnFromAction('turn_right')
 
+  def onLeftButton(self):
+    self.foreground.learnFromAction('turn_left')
+
+  def onForewardButton(self):
+    self.foreground.learnFromAction('forward')
+
+  def onExtendHandButton(self):
+    self.foreground.learnFromAction('extend_hand')
+
+  def onTakeStepsButton(self):
+    steps = self.stepLengthInput.get()
+    if str.isdigit(steps) and int(steps) > 0 :
+
+      for i in range(int(steps)):
+        self.foreground.learnFromBehaviorPolicyAction()
+    else:
+      self.status.set("Error: Not a valid number of steps")
 
   def reset(self):
     self.voronoiCanvas.delete("all")
@@ -242,6 +286,18 @@ class Display(object):
              wallLeftForward,
              wallLeftForwardPrediction):
 
+    #Status with all predictions
+    self.status.set("T: " + str(round(currentTouchPrediction, 2)) + "(" + str(wallInFront) + "), " + \
+                    "TL: " + str(round(turnLeftAndTouchPrediction, 2)) + "(" + str(wallOnLeft) + "), " + \
+                    "TR: " + str(round(turnRightAndTouchPrediction, 2)) + "(" + str(wallOnRight) + "), " + \
+                    "TB: " + str(round(touchBehindPrediction, 2)) + "(" + str(wallBehind) + "), " + \
+                    "TA: " + str(round(touchAdjacentPrediction, 2)) + "(" + str(wallAdjacent) + "), " + \
+                    "DTA: " + str(round(distanceToAdjacentPrediction, 2)) + "(" + str(distanceToAdjacent) + "), " + \
+                    "DTL: " + str(round(distanceToLeftPrediction, 2)) + "(" + str(distanceToLeft) + "), " + \
+                    "DTR: " + str(round(distanceToRightPrediction, 2)) + "(" + str(distanceToRight) + "), " + \
+                    "DTB: " + str(round(distanceBackPrediction, 2)) + "(" + str(distanceBack) + "), " + \
+                    "WLF: " + str(round(wallLeftForwardPrediction, 2)) + "(" + str(wallLeftForward) + "), " + \
+                    "")
     #Update Steps
     self.numberOfSteps.set("Step: " + str(numberOfSteps))
 
