@@ -35,6 +35,63 @@ class GVF:
         self.averageTD = 0
         self.i = 1
 
+        self.meta_weights = np.ones(self.numberOfFeatures) * np.log(self.alpha)
+        self.meta_weight_trace = np.ones(self.numberOfFeatures)
+        self.meta_step_size = 0.1
+
+    def update_meta_traces(self, phi, td_error):
+        """Updates the meta-traces for TDBID; is an accumulating trace of recent weight updates.
+        Args:
+            phi (ndarray): the last feature vector; represents s_t
+            td_error (float): the temporal-difference error for the current time-step.
+        """
+        raise NotImplementedError()
+
+    def update_meta_weights(self, phi, td_error):
+        """Updates the meta-weights for TIDBD; these are used to set the step-sizes.
+        Args:
+            phi (ndarray): the last feature vector; represents s_t
+            td_error (float): the temporal-difference error for the current time-step.
+        """
+        raise NotImplementedError()
+
+    def update_normalizer_accumulation(self, phi, td_error):
+        """Tracks the size of the meta-weight updates.
+        Args:
+            phi (ndarray): the last feature vector; represents s_t
+            td_error (float): the temporal-difference error for the current time-step."""
+        raise NotImplementedError()
+
+    def normalize_step_size(self, gamma, phi, phi_next):
+        """Calculates the effective step-size and normalizes the current step-size by that amount.
+        Args:
+            gamma (float): discount factor
+            phi (ndarray): feature vector for state s_t
+            phi_next (ndarray): feature vector for state s_{t+1}"""
+        effective_step_size = self.get_effective_step_size(gamma, phi, phi_next)
+        m = np.maximum(effective_step_size, 1.)
+        self.alpha -= np.log(m)
+
+    def tidbid(self, phi, phi_next, gamma, td_error):
+        """Using the feature vector for s_t and the current TD error, performs TIDBD and updates step-sizes.
+        Args:
+            phi (ndarray): the last feature vector; represents s_t
+            phi_next (ndarray): feature vector for state s_{t+1}
+            gamma (float): discount factor
+            td_error (float): the temporal-difference error for the current time-step.
+            
+        """
+        self.update_normalizer_accumulation(phi,td_error)
+        self.update_meta_weights(phi, td_error)
+        self.alpha = np.exp(self.meta_weights)
+
+    def calculate_step_size(self):
+        """Calculates the current alpha value using the meta-weights
+        Returns:
+             None
+        """
+        self.alpha = np.exp(self.beta)
+
     def saveWeightsToPickle(self, file):
         pickleDict = {'weights': self.weights, 'hWeights': self.hWeights, 'hHatWeights': self.hHatWeights}
         with open(file, 'wb') as outfile:
