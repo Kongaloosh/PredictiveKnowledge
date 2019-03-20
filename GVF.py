@@ -37,15 +37,16 @@ class GVF:
 
         self.meta_weights = np.ones(self.numberOfFeatures) * np.log(self.alpha)
         self.meta_weight_trace = np.ones(self.numberOfFeatures)
+        self.meta_normalizer_trace = np.zeros(self.numberOfFeatures)
         self.meta_step_size = 0.1
 
-    def update_meta_traces(self, phi, td_error):
+    def update_meta_traces(self, td_error):
         """Updates the meta-traces for TDBID; is an accumulating trace of recent weight updates.
         Args:
             phi (ndarray): the last feature vector; represents s_t
             td_error (float): the temporal-difference error for the current time-step.
         """
-        raise NotImplementedError()
+        self.h += self.alpha * td_error * self.eligibilityTrace
 
     def update_meta_weights(self, phi, td_error):
         """Updates the meta-weights for TIDBD; these are used to set the step-sizes.
@@ -53,14 +54,20 @@ class GVF:
             phi (ndarray): the last feature vector; represents s_t
             td_error (float): the temporal-difference error for the current time-step.
         """
-        raise NotImplementedError()
+        self.meta_weights += phi * self.meta_step_size * td_error * self.meta_weight_trace
 
     def update_normalizer_accumulation(self, phi, td_error):
         """Tracks the size of the meta-weight updates.
         Args:
             phi (ndarray): the last feature vector; represents s_t
             td_error (float): the temporal-difference error for the current time-step."""
-        raise NotImplementedError()
+        delta_phi = -phi
+        update = np.abs(td_error * delta_phi * self.meta_weight_trace)
+        tracker = np.exp(self.meta_weights) * self.eligibilityTrace * delta_phi
+        self.meta_normalizer_trace = np.maximum(
+            np.abs(update),
+            self.meta_normalizer_trace + (1./self.tau) * tracker * (np.abs(update) - self.meta_normalizer_trace)
+        )
 
     def get_effective_step_size(self, gamma, phi, phi_next):
         """Returns the effective step-size for a given time-step
@@ -72,7 +79,7 @@ class GVF:
             effective_step_size (float): the amount by which the error was reduced on a given example.
         """
         delta_phi = (gamma * phi_next - phi)
-        return np.dot(-(np.exp(self.beta) * self.z), delta_phi)
+        return np.dot(-(np.exp(self.meta_weights) * self.eligibilityTrace), delta_phi)
 
     def normalize_step_size(self, gamma, phi, phi_next):
         """Calculates the effective step-size and normalizes the current step-size by that amount.
@@ -82,9 +89,9 @@ class GVF:
             phi_next (ndarray): feature vector for state s_{t+1}"""
         effective_step_size = self.get_effective_step_size(gamma, phi, phi_next)
         m = np.maximum(effective_step_size, 1.)
-        self.beta /= np.log(m)
+        self.meta_weights /= np.log(m)
 
-    def tidbid(self, phi, phi_next, gamma, td_error):
+    def tdbid(self, phi, phi_next, gamma, td_error):
         """Using the feature vector for s_t and the current TD error, performs TIDBD and updates step-sizes.
         Args:
             phi (ndarray): the last feature vector; represents s_t
@@ -96,8 +103,8 @@ class GVF:
         self.update_normalizer_accumulation(phi,td_error)
         self.update_meta_weights(phi, td_error)
         self.normalize_step_size(gamma, phi, phi_next)
+        self.calculate_step_size()
         self.update_meta_traces(phi, td_error)
-        self.alpha = np.exp(self.meta_weights)
 
     def calculate_step_size(self):
         """Calculates the current alpha value using the meta-weights
