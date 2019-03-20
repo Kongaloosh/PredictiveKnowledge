@@ -62,6 +62,18 @@ class GVF:
             td_error (float): the temporal-difference error for the current time-step."""
         raise NotImplementedError()
 
+    def get_effective_step_size(self, gamma, phi, phi_next):
+        """Returns the effective step-size for a given time-step
+        Args:
+            phi (ndarray): the last feature vector; represents s_t
+            phi_next (ndarray): feature vector for state s_{t+1}
+            gamma (float): discount factor
+        Returns:
+            effective_step_size (float): the amount by which the error was reduced on a given example.
+        """
+        delta_phi = (gamma * phi_next - phi)
+        return np.dot(-(np.exp(self.beta) * self.z), delta_phi)
+
     def normalize_step_size(self, gamma, phi, phi_next):
         """Calculates the effective step-size and normalizes the current step-size by that amount.
         Args:
@@ -70,7 +82,7 @@ class GVF:
             phi_next (ndarray): feature vector for state s_{t+1}"""
         effective_step_size = self.get_effective_step_size(gamma, phi, phi_next)
         m = np.maximum(effective_step_size, 1.)
-        self.alpha -= np.log(m)
+        self.beta /= np.log(m)
 
     def tidbid(self, phi, phi_next, gamma, td_error):
         """Using the feature vector for s_t and the current TD error, performs TIDBD and updates step-sizes.
@@ -83,6 +95,8 @@ class GVF:
         """
         self.update_normalizer_accumulation(phi,td_error)
         self.update_meta_weights(phi, td_error)
+        self.normalize_step_size(gamma, phi, phi_next)
+        self.update_meta_traces(phi, td_error)
         self.alpha = np.exp(self.meta_weights)
 
     def calculate_step_size(self):
