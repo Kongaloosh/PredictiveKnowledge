@@ -50,7 +50,7 @@ class StateRepresentation(object):
           gvfs (???): a collection of GVFs.
         """
         self.gvfs = gvfs
-        self.behaviorPolicy = BehaviorPolicy()
+        self.behaviour_policy = BehaviorPolicy()
         self.pointsOfInterest = []
         self.numberOfTimesBumping = 0
         self.randomYs = np.random.choice(HEIGHT, NUMBER_OF_PIXEL_SAMPLES, replace=True)
@@ -140,9 +140,9 @@ class StateRepresentation(object):
         # Add the values for each of the gvf predictions + previous action using the previous state
         for name, gvf in self.gvfs.items():
 
-            for key in self.behaviorPolicy.ACTIONS:
+            for key in self.behaviour_policy.ACTIONS:
                 prediction_rep = np.zeros(PREDICTION_FEATURE_LENGTH)
-                if self.behaviorPolicy.ACTIONS[key] == previous_action:
+                if self.behaviour_policy.ACTIONS[key] == previous_action:
                     prediction = gvf.prediction(previous_phi)
                     indexes = tiles(NUM_PREDICTION_TILINGS, 16, [prediction])
                     for index in indexes:
