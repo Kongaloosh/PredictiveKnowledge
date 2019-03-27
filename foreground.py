@@ -461,7 +461,7 @@ class Foreground:
 
     def learnFromBehaviorPolicyAction(self):
         """"""
-        action = self.behaviorPolicy.mostlyForwardAndTouchPolicy(self.state)
+        action = self.behaviorPolicy.mostly_forward_and_touch_policy(self.state)
         self.learnFromAction(action)
 
     def learnFromAction(self, action):
