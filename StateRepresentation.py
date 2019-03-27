@@ -31,7 +31,7 @@ NUMBER_OF_GVFS = 10
 NUMBER_OF_ACTIONS = 4
 NUM_PREDICTION_TILINGS = 4
 # TOTAL_FEATURE_LENGTH =NUMBER_OF_ACTIONS * (PIXEL_FEATURE_LENGTH * NUMBER_OF_PIXEL_SAMPLES + NUMBER_OF_GVFS * PREDICTION_FEATURE_LENGTH) + DID_TOUCH_FEATURE_LENGTH
-TOTAL_FEATURE_LENGTH = PIXEL_FEATURE_LENGTH * NUMBER_OF_PIXEL_SAMPLES + NUMBER_OF_GVFS * PREDICTION_FEATURE_LENGTH * NUMBER_OF_ACTIONS + DID_TOUCH_FEATURE_LENGTH
+TOTAL_FEATURE_LENGTH = PIXEL_FEATURE_LENGTH * NUMBER_OF_PIXEL_SAMPLES + NUMBER_OF_GVFS * PREDICTION_FEATURE_LENGTH * NUMBER_OF_ACTIONS + DID_TOUCH_FEATURE_LENGTH + 1
 
 # Channels
 RED_CHANNEL = 0
@@ -151,8 +151,8 @@ class StateRepresentation(object):
                 phi.extend(prediction_rep)
 
         did_touch = state['touchData']
-        phi.append(int(did_touch))
-
+        phi.append(float(did_touch))
+        phi.append(1.0)   # bias bit
         return np.array(phi)
 
     def get_cheating_phi(self, state, previousAction):
