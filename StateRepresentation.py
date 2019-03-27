@@ -64,18 +64,34 @@ class StateRepresentation(object):
             point = self.randomXs[i], self.randomYs[i]
             self.pointsOfInterest.append(point)
 
-    def save_points_of_interest(self, file):
-        """"""
-        with open(file, 'wb') as outfile:
+    def save_points_of_interest(self, file_name):
+        """Saves the subsampled pixel locations to a file.
+        Args:
+            file_name (str): the location of the file to save points of interest to.
+        """
+        with open(file_name, 'wb') as outfile:
             pickle.dump(self.pointsOfInterest, outfile)
 
-    def read_points_of_interest(self, file):
-        with open(file, 'rb') as inFile:
+    def read_points_of_interest(self, file_name):
+        """Reads the subsampled pixel locations from a
+        Args:
+            file_name (str): the name of the file to be read.
+        """
+        with open(file_name, 'rb') as inFile:
             self.pointsOfInterest = pickle.load(inFile)
             print("Read points of interest")
 
     def get_rgb_pixel_from_frame(self, frame, x, y):
-        length = len(frame)
+        """Given a frame and some x,y pixel location, extracts the rgb value of the given pixel.
+
+        Args:
+            frame (???): a current minecraft frame
+            x (int): the x location of the pixel of interest
+            y (int): the y location of the pixel of interest
+
+        Returns:
+            (r, g, b) (tuple): the r,g,b values for the pixel of interest.
+        """
         r = frame[3 * (x + y * WIDTH)]
         g = frame[1 + 3 * (x + y * WIDTH)]
         b = frame[2 + 3 * (x + y * WIDTH)]
