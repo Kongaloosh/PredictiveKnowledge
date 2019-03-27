@@ -1,43 +1,31 @@
 #!/usr/bin/python
 # coding: utf-8
 from __future__ import print_function
-
 from builtins import range
 import os
-import sys
-import time
-import numpy as np
-import json
-import cv2
-from Voronoi import *
-from constants import *
-from StateRepresentation import *
 import peakAtState as peak
-from BehaviorPolicy import *
 from display import *
 from GVF import *
 from GridWorld import *
-from PIL import ImageTk
 from PIL import Image
 
 if sys.version_info[0] == 2:
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 else:
     import functools
-
     print = functools.partial(print, flush=True)
 
 
-def didTouchCumulant(phi):
+def did_touch_cumulant(phi):
+    """Checks to see if the the touch."""
     if USE_SIMPLE_PHI:
-
         idx = np.nonzero(phi)[0][0]
         if (idx) < 400:
             return 0.0
         else:
             return 1.0
     else:
-        return phi[len(phi) - 1]
+        return phi[-1:]
 
 
 class Foreground:
@@ -52,38 +40,40 @@ class Foreground:
             control.
             
         """
-        self.showDisplay = showDisplay
-        self.stepsBeforePromptingForAction = stepsBeforePromptingForAction
-        self.stepsBeforeUpdatingDisplay = stepsBeforeUpdatingDisplay
-        self.gridWorld = GridWorld('model/grids', initialX=1, initialY=1)
-        self.behaviorPolicy = BehaviorPolicy()
+        self.show_display = showDisplay
+        self.steps_before_prompting_for_action = stepsBeforePromptingForAction
+        self.steps_before_updating_display = stepsBeforeUpdatingDisplay
+        self.grid_world = GridWorld('model/grids', initialX=1, initialY=1)
+        self.behavior_policy = BehaviorPolicy()
 
-        if self.showDisplay:
+        if self.show_display:
             self.display = Display(self)
         self.gvfs = {}
-        self.configureGVFs(simplePhi=USE_SIMPLE_PHI)
-        self.stateRepresentation = StateRepresentation(self.gvfs)
+        self.configure_gvfs(simplePhi=USE_SIMPLE_PHI)
+        self.state_representation = StateRepresentation(self.gvfs)
         self.state = False
-        self.oldState = False
-        self.phi = self.stateRepresentation.getEmptyPhi()
-        self.oldPhi = self.stateRepresentation.getEmptyPhi()
+        self.old_state = False
+        self.phi = self.state_representation.get_empty_phi()
+        self.old_phi = self.state_representation.get_empty_phi()
 
-    def saveGVFweights(self):
+        self.action_count = 0
+        self.action = None
+
+    def save_gvf_weights(self):
         """Saves the weights of the GVFs to a """
         for name, gvf in self.gvfs.items():
             gvf.saveWeightsToPickle('weights/' + str(gvf.name))
-        self.stateRepresentation.savePointsOfInterest('weights/pointsofinterest')
+        self.state_representation.save_points_of_interest('weights/pointsofinterest')
 
-    def readGVFweights(self):
+    def read_gvf_weights(self):
         """For a collection of GVFs, checks to see if there's a file which matches the """
         for name, gvf in self.gvfs.items():
             print("Reading weights for " + str(name))
             gvf.readWeightsFromPickle('weights/' + str(gvf.name))
-        self.stateRepresentation.readPointsOfInterest('weights/pointsofinterest')
+        self.state_representation.read_points_of_interest('weights/pointsofinterest')
 
-    def configureGVFs(self, simplePhi=False):
+    def configure_gvfs(self, simplePhi=False):
         """Configures the GVFs horde based on Mark Ring's thought experiment."""
-
         touchThreshold = 0.8  # The prediction value before it is considered to be true.
         '''
         Layer 1 - Touch (T)
@@ -97,13 +87,13 @@ class Foreground:
             touchGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
                            alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), isOffPolicy=True, name="T")
 
-        touchGVF.cumulant = didTouchCumulant
-        touchGVF.policy = self.behaviorPolicy.extendHandPolicy
+        touchGVF.cumulant = did_touch_cumulant
+        touchGVF.policy = self.behavior_policy.extendHandPolicy
 
-        def didtouchGamma(phi):
+        def did_touch_gamma(phi):
             return 0
 
-        touchGVF.gamma = didtouchGamma
+        touchGVF.gamma = did_touch_gamma
         self.gvfs[touchGVF.name] = touchGVF
 
         '''
@@ -117,8 +107,8 @@ class Foreground:
                               alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), isOffPolicy=True, name="TL")
 
         turnLeftGVF.cumulant = self.gvfs['T'].prediction
-        turnLeftGVF.policy = self.behaviorPolicy.turnLeftPolicy
-        turnLeftGVF.gamma = didtouchGamma
+        turnLeftGVF.policy = self.behavior_policy.turnLeftPolicy
+        turnLeftGVF.gamma = did_touch_gamma
         self.gvfs[turnLeftGVF.name] = turnLeftGVF
 
         if simplePhi:
@@ -129,8 +119,8 @@ class Foreground:
                                alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), isOffPolicy=True, name="TR")
 
         turnRightGVF.cumulant = self.gvfs['T'].prediction
-        turnRightGVF.policy = self.behaviorPolicy.turnRightPolicy
-        turnRightGVF.gamma = didtouchGamma
+        turnRightGVF.policy = self.behavior_policy.turnRightPolicy
+        turnRightGVF.gamma = did_touch_gamma
         self.gvfs[turnRightGVF.name] = turnRightGVF
 
         '''
@@ -145,8 +135,8 @@ class Foreground:
                                  name="TB")
 
         touchBehindGVF.cumulant = self.gvfs['TR'].prediction
-        touchBehindGVF.policy = self.behaviorPolicy.turnRightPolicy
-        touchBehindGVF.gamma = didtouchGamma
+        touchBehindGVF.policy = self.behavior_policy.turnRightPolicy
+        touchBehindGVF.gamma = did_touch_gamma
         self.gvfs[touchBehindGVF.name] = touchBehindGVF
 
         '''
@@ -224,7 +214,7 @@ class Foreground:
             return 1.0
 
         distanceToTouchAdjacentGVF.cumulant = distanceToTouchAdjacentCumulant
-        distanceToTouchAdjacentGVF.policy = self.behaviorPolicy.moveForwardPolicy
+        distanceToTouchAdjacentGVF.policy = self.behavior_policy.moveForwardPolicy
 
         def distanceToTouchAdjacentGamma(phi):
             prediction = self.gvfs['T'].prediction(phi)  # TODO - change to self.gvfs['TA'].prediction() after testing
@@ -261,7 +251,7 @@ class Foreground:
             return 0
 
         distanceToLeftGVF.gamma = distanceToLeftGamma
-        distanceToLeftGVF.policy = self.behaviorPolicy.turnLeftPolicy
+        distanceToLeftGVF.policy = self.behavior_policy.turnLeftPolicy
         self.gvfs[distanceToLeftGVF.name] = distanceToLeftGVF
 
         # Distance to Right GVF
@@ -283,7 +273,7 @@ class Foreground:
             return 0
 
         distanceToRightGVF.gamma = distanceToRightGamma
-        distanceToRightGVF.policy = self.behaviorPolicy.turnRightPolicy
+        distanceToRightGVF.policy = self.behavior_policy.turnRightPolicy
         self.gvfs[distanceToRightGVF.name] = distanceToRightGVF
 
         # Distance behind GVF
@@ -305,7 +295,7 @@ class Foreground:
             return 0
 
         distanceToBackGVF.gamma = distanceToBackGamma
-        distanceToBackGVF.policy = self.behaviorPolicy.turnRightPolicy
+        distanceToBackGVF.policy = self.behavior_policy.turnRightPolicy
         self.gvfs[distanceToBackGVF.name] = distanceToBackGVF
 
         # Wall left forward GVF (ie. how many steps the agent can take forward while keeping a wall on the left
@@ -335,16 +325,16 @@ class Foreground:
                 return 0.0
 
         wallLeftForwardGVF.gamma = wallLeftGamma
-        wallLeftForwardGVF.policy = self.behaviorPolicy.moveForwardPolicy
+        wallLeftForwardGVF.policy = self.behavior_policy.moveForwardPolicy
         self.gvfs[wallLeftForwardGVF.name] = wallLeftForwardGVF
 
     def learn(self):
+        """Updates all the GVFs in the horde."""
         for name, gvf in self.gvfs.items():
-            gvf.learn(lastState=self.oldPhi, action=self.action, newState=self.phi)
+            gvf.learn(lastState=self.old_phi, action=self.action, newState=self.phi)
 
     def updateUI(self):
         # Create a voronoi image
-
         frameError = False
         try:
             frame = self.state['visionData']
@@ -354,9 +344,9 @@ class Foreground:
 
         if not frameError:
             # rgb = self.s
-            if self.showDisplay:
+            if self.show_display:
                 voronoi = voronoi_from_pixels(pixels=frame, dimensions=(WIDTH, HEIGHT),
-                                              pixelsOfInterest=self.stateRepresentation.pointsOfInterest)
+                                              pixelsOfInterest=self.state_representation.pointsOfInterest)
             # cv2.imshow('My Image', voronoi)
             # cv2.waitKey(0)
 
@@ -365,7 +355,7 @@ class Foreground:
             else:
                 didTouch = self.state['touchData']
 
-            inFront = peak.isWallInFront(self.state['x'], self.state['y'], self.state['yaw'], self.gridWorld)
+            inFront = peak.isWallInFront(self.state['x'], self.state['y'], self.state['yaw'], self.grid_world)
             touchPrediction = self.gvfs['T'].prediction(self.phi)
 
             gameImage = Image.frombytes('RGB', (WIDTH, HEIGHT), bytes(frame))
@@ -392,49 +382,49 @@ class Foreground:
               x = observations.get(u'XPos', 0)
               z = observations.get(u'ZPos', 0)
               print("To: " + str(yaw) + ", " + str(x) + ", " + str(z))
-              ph = self.stateRepresentation.getPhi(previousPhi = self.oldPhi, state=self.state, previousAction=self.action, simplePhi = USE_SIMPLE_PHI)
+              ph = self.stateRepresentation.get_phi(previousPhi = self.oldPhi, state=self.state, previousAction=self.action, simplePhi = USE_SIMPLE_PHI)
               idx = np.nonzero(ph)[0][0]
               numNonZeros = len(np.nonzero(ph)[0])
               print("idx: " + str(idx) + ", nonZeros: " + str(numNonZeros))
               print("Observations since last:" + str(self.state.number_of_observations_since_last_state))
               print("")
             '''
-            onLeft = peak.isWallOnLeft(self.state['x'], self.state['y'], self.state['yaw'], self.gridWorld)
+            onLeft = peak.isWallOnLeft(self.state['x'], self.state['y'], self.state['yaw'], self.grid_world)
             turnLeftAndTouchPrediction = self.gvfs['TL'].prediction(self.phi)
 
-            onRight = peak.isWallOnRight(self.state['x'], self.state['y'], self.state['yaw'], self.gridWorld)
+            onRight = peak.isWallOnRight(self.state['x'], self.state['y'], self.state['yaw'], self.grid_world)
             turnRightAndtouchPrediction = self.gvfs['TR'].prediction(self.phi)
 
-            isBehind = peak.isWallBehind(self.state['x'], self.state['y'], self.state['yaw'], self.gridWorld)
+            isBehind = peak.isWallBehind(self.state['x'], self.state['y'], self.state['yaw'], self.grid_world)
             touchBehindPrediction = self.gvfs['TB'].prediction(self.phi)
 
-            wallAdjacent = peak.isWallAdjacent(self.state['x'], self.state['y'], self.state['yaw'], self.gridWorld)
+            wallAdjacent = peak.isWallAdjacent(self.state['x'], self.state['y'], self.state['yaw'], self.grid_world)
             isWallAdjacentPrediction = self.gvfs['TA'].prediction(self.phi)
 
             distanceToAdjacent = peak.distanceToAdjacent(self.state['x'], self.state['y'], self.state['yaw'],
-                                                         self.gridWorld)
+                                                         self.grid_world)
             distanceToAdjacentPrediction = self.gvfs['DTA'].prediction(self.phi)
 
             distanceLeft = peak.distanceLeftToAdjacent(self.state['x'], self.state['y'], self.state['yaw'],
-                                                       self.gridWorld)
+                                                       self.grid_world)
             distanceLeftPrediction = self.gvfs['DTL'].prediction(self.phi)
 
             distanceRight = peak.distanceRightToAdjacent(self.state['x'], self.state['y'], self.state['yaw'],
-                                                         self.gridWorld)
+                                                         self.grid_world)
             distanceRightPrediction = self.gvfs['DTR'].prediction(self.phi)
 
             distanceBack = peak.distanceBehindToAdjacent(self.state['x'], self.state['y'], self.state['yaw'],
-                                                         self.gridWorld)
+                                                         self.grid_world)
             distanceBackPrediction = self.gvfs['DTB'].prediction(self.phi)
 
-            wallLeftForward = peak.wallLeftForward(self.state['x'], self.state['y'], self.state['yaw'], self.gridWorld)
+            wallLeftForward = peak.wallLeftForward(self.state['x'], self.state['y'], self.state['yaw'], self.grid_world)
             wallLeftForwardPrediction = self.gvfs['WLF'].prediction(self.phi)
 
-            if self.showDisplay:
-                if self.actionCount > self.stepsBeforeUpdatingDisplay:
+            if self.show_display:
+                if self.action_count > self.steps_before_updating_display:
                     self.display.update(voronoiImage=voronoi,
                                         gameImage=gameImage,
-                                        numberOfSteps=self.actionCount,
+                                        numberOfSteps=self.action_count,
                                         currentTouchPrediction=touchPrediction,
                                         wallInFront=inFront,
                                         didTouch=didTouch,
@@ -459,55 +449,39 @@ class Foreground:
                                         )
                     # time.sleep(1.0)
 
-    def learnFromBehaviorPolicyAction(self):
-        """"""
-        action = self.behaviorPolicy.mostly_forward_and_touch_policy(self.state)
-        self.learnFromAction(action)
+    def learn_from_behavior_policy_action(self):
+        """Using the behaviour policy, selects an action. After selecting an action, updates the GVFs based on the
+        action."""
+        # todo: this is set as a variable in learn_from_action; we don't need to have two dependent calls...
+        action = self.behavior_policy.mostly_forward_and_touch_policy(self.state)
+        self.learn_from_action(action)
 
-    def learnFromAction(self, action):
-        """"""
+    def learn_from_action(self, action):
+        """Given the most recent action, """
         self.action = action
-        self.actionCount += 1
-        if self.actionCount % 100 == 0:
-            print("Step " + str(self.actionCount) + " ... ")
-        # print(".", end="")
+        self.action_count += 1
+        # If we've done 100 steps; pretty print the progress.
+        if self.action_count % 100 == 0:
+            print("Step " + str(self.action_count) + " ... ")
 
-        self.oldState = self.state
-        self.oldPhi = self.phi
+        self.old_state = self.state
+        self.old_phi = self.phi
 
-        observation = self.gridWorld.takeAction(self.action)
-        # time.sleep(0.2)
+        observation = self.grid_world.takeAction(self.action)
         self.state = observation
 
-        # print("==========")
-        # print("Action was: " + str(self.action))
-        # print("Number of observations since last: " + str(self.state.number_of_observations_since_last_state))
-        # print("Length of observation array: " + str(len(self.state.observations)))
-        # print("Number of video frames: " + str(len(self.state.video_frames)))
-        if self.oldState:
-            yaw = self.oldState['yaw']
-            xPos = self.oldState['x']
-            zPos = self.oldState['y']
-            # print("From observation: (" + str(xPos) + ", " + str(zPos) + "), yaw:" + str(yaw))
+        if self.old_state:
+            yaw = self.old_state['yaw']
+            xPos = self.old_state['x']
+            zPos = self.old_state['y']
 
         yaw = self.state['yaw']
         xPos = self.state['x']
         zPos = self.state['y']
-        # print("To observation: (" + str(xPos) + ", " + str(zPos) + "), yaw:" + str(yaw))
-        """
-        if (self.action == "turn -1"):
-          #Debug the video
-          i = 0
-          for videoframe in self.state.video_frames:
-            cmap = Image.frombytes('RGB', (WIDTH, HEIGHT), bytes(videoframe.pixels))
-            cmap.show(title = "Image: " + str(i))
-            i+=1
-          i = i
-        """
-        # print("")
 
-        self.phi = self.stateRepresentation.getPhi(previousPhi=self.oldPhi, state=self.state,
-                                                   previousAction=self.action, simplePhi=USE_SIMPLE_PHI)
+
+        self.phi = self.state_representation.get_phi(previousPhi=self.old_phi, state=self.state,
+                                                     previousAction=self.action, simplePhi=USE_SIMPLE_PHI)
 
         # Do the learning
         self.learn()
@@ -516,22 +490,18 @@ class Foreground:
         self.updateUI()
 
     def start(self):
-        """"""
-        self.actionCount = 0
-        self.action = self.behaviorPolicy.ACTIONS['extend_hand']
-
+        """Initializes the plotter and runs the experiment."""
+        self.action = self.behavior_policy.ACTIONS['extend_hand']   # the first action is always 'touch'
         # Loop until mission ends:
-        for i in range(self.stepsBeforePromptingForAction):
+        while self.action_count < self.steps_before_prompting_for_action:
             # Select and send action. Need to sleep to give time for simulator to respond
-            self.learnFromBehaviorPolicyAction()
-
+            self.learn_from_behavior_policy_action()
         self.display.root.mainloop()
-        print()
         print("Mission ended")
         # Mission has ended.
 
 
-# fg.readGVFweights()
+# fg.read_gvf_weights()
 fg = Foreground(showDisplay=True, stepsBeforeUpdatingDisplay=0, stepsBeforePromptingForAction=12)
 
 fg.start()

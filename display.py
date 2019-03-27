@@ -232,23 +232,23 @@ class Display(object):
     self.reset()
 
   def onRightButton(self):
-    self.foreground.learnFromAction('turn_right')
+    self.foreground.learn_from_action('turn_right')
 
   def onLeftButton(self):
-    self.foreground.learnFromAction('turn_left')
+    self.foreground.learn_from_action('turn_left')
 
   def onForewardButton(self):
-    self.foreground.learnFromAction('forward')
+    self.foreground.learn_from_action('forward')
 
   def onExtendHandButton(self):
-    self.foreground.learnFromAction('extend_hand')
+    self.foreground.learn_from_action('extend_hand')
 
   def onTakeStepsButton(self):
     steps = self.stepLengthInput.get()
     if str.isdigit(steps) and int(steps) > 0 :
 
       for i in range(int(steps)):
-        self.foreground.learnFromBehaviorPolicyAction()
+        self.foreground.learn_from_behavior_policy_action()
     else:
       self.status.set("Error: Not a valid number of steps")
 

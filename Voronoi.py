@@ -53,7 +53,7 @@ def voronoi_from_pixels(pixels, dimensions, pixelsOfInterest):
     y = int(p[1])
     x = int(p[0])
 
-    rgb = stateRepresentation.getRGBPixelFromFrame(pixels, x, y)
+    rgb = stateRepresentation.get_rgb_pixel_from_frame(pixels, x, y)
     #Get BGR color
     color = [rgb[2], rgb[1], rgb[0]]
 
