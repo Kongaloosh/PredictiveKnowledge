@@ -480,8 +480,8 @@ class Foreground:
         zPos = self.state['y']
 
 
-        self.phi = self.state_representation.get_phi(previousPhi=self.old_phi, state=self.state,
-                                                     previousAction=self.action, simplePhi=USE_SIMPLE_PHI)
+        self.phi = self.state_representation.get_phi(previous_phi=self.old_phi, state=self.state,
+                                                     previous_action=self.action, simple_phi=USE_SIMPLE_PHI)
 
         # Do the learning
         self.learn()

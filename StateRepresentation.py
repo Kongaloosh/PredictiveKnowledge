@@ -2,17 +2,13 @@
 
 
 from constants import *
-
 import numpy as np
-# We want the hashing for tiles to be deterministic. So set random seed.
-import random
-
-random.seed(9000)
-from tiles import *
-import json
-import time
 import pickle
 from BehaviorPolicy import *
+# We want the hashing for tiles to be deterministic. So set random seed.
+import random
+random.seed(9000)
+from tiles import *
 
 # image tiles
 NUMBER_OF_PIXEL_SAMPLES = 100
@@ -97,10 +93,11 @@ class StateRepresentation(object):
         b = frame[2 + 3 * (x + y * WIDTH)]
         return (r, g, b)
 
-    def get_empty_phi(self):
+    @staticmethod
+    def get_empty_phi():
         return np.zeros(TOTAL_FEATURE_LENGTH)
 
-    def get_phi(self, previousPhi, previousAction, state, simplePhi=False, ):
+    def get_phi(self, previous_phi, previous_action, state, simple_phi=False, ):
         """
             Name: get_phi
             Description: Creates the feature representation (phi) for a given observation. The representation
@@ -110,8 +107,8 @@ class StateRepresentation(object):
             Input: the observation. This is the full pixel rgbd values for each of the IMAGE_WIDTH X IMAGE_HEIGHT pixels in view
             Output: The feature vector
             """
-        if simplePhi:
-            return self.get_cheating_phi(state, previousAction)
+        if simple_phi:
+            return self.get_cheating_phi(state, previous_action)
 
         if not state:
             return None
@@ -119,7 +116,7 @@ class StateRepresentation(object):
         try:
             frame = state['visionData']
         except KeyError:
-            return self.get_empty_phi()
+            return self.get_empty_phi()     # if there is no frame, return an empty feature vector.
 
         phi = []
 
@@ -145,8 +142,8 @@ class StateRepresentation(object):
 
             for key in self.behaviorPolicy.ACTIONS:
                 prediction_rep = np.zeros(PREDICTION_FEATURE_LENGTH)
-                if self.behaviorPolicy.ACTIONS[key] == previousAction:
-                    prediction = gvf.prediction(previousPhi)
+                if self.behaviorPolicy.ACTIONS[key] == previous_action:
+                    prediction = gvf.prediction(previous_phi)
                     indexes = tiles(NUM_PREDICTION_TILINGS, 16, [prediction])
                     for index in indexes:
                         prediction_rep[index] = 1.0
