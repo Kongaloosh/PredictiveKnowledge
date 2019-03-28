@@ -284,7 +284,8 @@ class Display(object):
              distanceBackPrediction,
              wallAdjacent,
              wallLeftForward,
-             wallLeftForwardPrediction):
+             wallLeftForwardPrediction,
+             action):
 
     #Status with all predictions
     self.status.set("T: " + str(round(currentTouchPrediction, 2)) + "(" + str(wallInFront) + "), " + \
@@ -299,7 +300,7 @@ class Display(object):
                     "WLF: " + str(round(wallLeftForwardPrediction, 2)) + "(" + str(wallLeftForward) + "), " + \
                     "")
     #Update Steps
-    self.numberOfSteps.set("Step: " + str(numberOfSteps))
+    self.numberOfSteps.set("Step: " + str(numberOfSteps) +" Action: " +action)
 
     #Update did touch
     if didTouch:
