@@ -49,7 +49,7 @@ class Foreground:
         if self.show_display:
             self.display = Display(self)
         self.gvfs = {}
-        self.configure_gvfs(simplePhi=USE_SIMPLE_PHI)
+        self.configure_gvfs(simple_phi=USE_SIMPLE_PHI)
         self.state_representation = StateRepresentation(self.gvfs)
         self.state = False
         self.old_state = False
@@ -72,85 +72,83 @@ class Foreground:
             gvf.readWeightsFromPickle('weights/' + str(gvf.name))
         self.state_representation.read_points_of_interest('weights/pointsofinterest')
 
-    def configure_gvfs(self, simplePhi=False):
+    def did_touch_gamma(phi):
+        return 0
+
+    def configure_gvfs(self, simple_phi=False):
         """Configures the GVFs horde based on Mark Ring's thought experiment."""
-        touchThreshold = 0.8  # The prediction value before it is considered to be true.
-        '''
-        Layer 1 - Touch (T)
-        '''
-        touchGVF = None
-        if simplePhi:
+        touch_threshold = 0.8  # The prediction value before it is considered to be true.
 
-            touchGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH, alpha=0.70,
-                           isOffPolicy=True, name="T")
+        # Layer 1 - Touch (T)
+        touch_gvf = None
+        if simple_phi:
+            touch_gvf = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH, alpha=0.70,
+                            is_off_policy=True, name="T")
         else:
-            touchGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                           alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), isOffPolicy=True, name="T")
+            touch_gvf = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
+                            alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), is_off_policy=True, name="T")
 
-        touchGVF.cumulant = did_touch_cumulant
-        touchGVF.policy = self.behavior_policy.extendHandPolicy
+        touch_gvf.cumulant = did_touch_cumulant
+        touch_gvf.policy = self.behavior_policy.extendHandPolicy
 
-        def did_touch_gamma(phi):
-            return 0
 
-        touchGVF.gamma = did_touch_gamma
-        self.gvfs[touchGVF.name] = touchGVF
 
-        '''
-        #Layer 2 - Touch Left (TL) and Touch Right (TR)
-        '''
-        if simplePhi:
-            turnLeftGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                              alpha=0.70, isOffPolicy=True, name="TL")
+        touch_gvf.gamma = did_touch_gamma
+        self.gvfs[touch_gvf.name] = touch_gvf
+
+        # Layer 2 - Touch Left (TL) and Touch Right (TR)å
+        if simple_phi:
+            turn_left_gvf = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
+                                alpha=0.70, is_off_policy=True, name="TL")
         else:
-            turnLeftGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                              alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), isOffPolicy=True, name="TL")
+            turn_left_gvf = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
+                                alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), is_off_policy=True, name="TL")
 
-        turnLeftGVF.cumulant = self.gvfs['T'].prediction
-        turnLeftGVF.policy = self.behavior_policy.turnLeftPolicy
-        turnLeftGVF.gamma = did_touch_gamma
-        self.gvfs[turnLeftGVF.name] = turnLeftGVF
+        turn_left_gvf.cumulant = self.gvfs['T'].prediction
+        turn_left_gvf.policy = self.behavior_policy.turnLeftPolicy
+        turn_left_gvf.gamma = did_touch_gamma
+        self.gvfs[turn_left_gvf.name] = turn_left_gvf
 
-        if simplePhi:
-            turnRightGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                               alpha=0.70, isOffPolicy=True, name="TR")
+        if simple_phi:
+            turn_right_gvf = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
+                                 alpha=0.70, is_off_policy=True, name="TR")
         else:
-            turnRightGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                               alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), isOffPolicy=True, name="TR")
+            turn_right_gvf = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
+                                 alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), is_off_policy=True, name="TR")
 
-        turnRightGVF.cumulant = self.gvfs['T'].prediction
-        turnRightGVF.policy = self.behavior_policy.turnRightPolicy
-        turnRightGVF.gamma = did_touch_gamma
-        self.gvfs[turnRightGVF.name] = turnRightGVF
+        turn_right_gvf.cumulant = self.gvfs['T'].prediction
+        turn_right_gvf.policy = self.behavior_policy.turnRightPolicy
+        turn_right_gvf.gamma = did_touch_gamma
+        self.gvfs[turn_right_gvf.name] = turn_right_gvf
 
         '''
         #Layer 3 - Touch Behind
         '''
-        if simplePhi:
-            touchBehindGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                                 alpha=0.70, isOffPolicy=True, name="TB")
+        if simple_phi:
+            touch_behind_gvf = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
+                                   alpha=0.70, is_off_policy=True, name="TB")
         else:
-            touchBehindGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                                 alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), isOffPolicy=True,
-                                 name="TB")
+            touch_behind_gvf = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
+                                   alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), is_off_policy=True,
+                                   name="TB")
 
-        touchBehindGVF.cumulant = self.gvfs['TR'].prediction
-        touchBehindGVF.policy = self.behavior_policy.turnRightPolicy
-        touchBehindGVF.gamma = did_touch_gamma
-        self.gvfs[touchBehindGVF.name] = touchBehindGVF
+        touch_behind_gvf.cumulant = self.gvfs['TR'].prediction
+        touch_behind_gvf.policy = self.behavior_policy.turnRightPolicy
+        touch_behind_gvf.gamma = did_touch_gamma
+        self.gvfs[touch_behind_gvf.name] = touch_behind_gvf
 
         '''
         #Layer 4 - Touch Adjacent (TA)
         ----- ALIAS ---- 
         '''
 
-        if simplePhi:
+        if simple_phi:
             touchAdjacentGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                                   alpha=0.70, isOffPolicy=True, name="TA")
+                                   alpha=0.70, is_off_policy=True, name="TA")
         else:
 
             touchAdjacentGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                                   alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), isOffPolicy=True,
+                                   alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), is_off_policy=True,
                                    name="TA")
 
         """
@@ -159,7 +157,7 @@ class Foreground:
           touchAdjacent = 0.0
           touchAdjacent = max([self.gvfs['T'].prediction(phi), self.gvfs['TL'].prediction(phi), self.gvfs['TR'].prediction(phi), self.gvfs['TB'].prediction(phi)])
     
-          if touchAdjacent > touchThreshold:
+          if touchAdjacent > touch_threshold:
             touchAdjacent = 1.0
           else:
             touchAdjacent = 0.0
@@ -201,14 +199,14 @@ class Foreground:
          since this would allow for an agent whose rotations are not 90 degrees.
         '''
 
-        if simplePhi:
+        if simple_phi:
             # simplePhi is a debug setting Dave uses to test out functionality. Simplifies the phi to
             distanceToTouchAdjacentGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                                             alpha=0.70, isOffPolicy=True, name="DTA")
+                                             alpha=0.70, is_off_policy=True, name="DTA")
         else:
             distanceToTouchAdjacentGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
                                              alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES),
-                                             isOffPolicy=True, name="DTA")
+                                             is_off_policy=True, name="DTA")
 
         def distanceToTouchAdjacentCumulant(phi):
             return 1.0
@@ -218,7 +216,7 @@ class Foreground:
 
         def distanceToTouchAdjacentGamma(phi):
             prediction = self.gvfs['T'].prediction(phi)  # TODO - change to self.gvfs['TA'].prediction() after testing
-            if prediction > touchThreshold:
+            if prediction > touch_threshold:
                 return 0
             else:
                 return 1
@@ -233,13 +231,13 @@ class Foreground:
         '''
 
         # Distance to Left GVF
-        if simplePhi:
+        if simple_phi:
             distanceToLeftGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                                    alpha=0.70, isOffPolicy=True, name="DTL")
+                                    alpha=0.70, is_off_policy=True, name="DTL")
         else:
 
             distanceToLeftGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                                    alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), isOffPolicy=True,
+                                    alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), is_off_policy=True,
                                     name="DTL")
 
         def distanceToLeftCumulant(phi):
@@ -255,13 +253,13 @@ class Foreground:
         self.gvfs[distanceToLeftGVF.name] = distanceToLeftGVF
 
         # Distance to Right GVF
-        if simplePhi:
+        if simple_phi:
             distanceToRightGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                                     alpha=0.70, isOffPolicy=True, name="DTR")
+                                     alpha=0.70, is_off_policy=True, name="DTR")
         else:
 
             distanceToRightGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                                     alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), isOffPolicy=True,
+                                     alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), is_off_policy=True,
                                      name="DTR")
 
         def distanceToRightCumulant(phi):
@@ -277,13 +275,13 @@ class Foreground:
         self.gvfs[distanceToRightGVF.name] = distanceToRightGVF
 
         # Distance behind GVF
-        if simplePhi:
+        if simple_phi:
             distanceToBackGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                                    alpha=0.70, isOffPolicy=True, name="DTB")
+                                    alpha=0.70, is_off_policy=True, name="DTB")
         else:
 
             distanceToBackGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                                    alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), isOffPolicy=True,
+                                    alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), is_off_policy=True,
                                     name="DTB")
 
         def distanceToBackCumulant(phi):
@@ -299,18 +297,18 @@ class Foreground:
         self.gvfs[distanceToBackGVF.name] = distanceToBackGVF
 
         # Wall left forward GVF (ie. how many steps the agent can take forward while keeping a wall on the left
-        if simplePhi:
+        if simple_phi:
             wallLeftForwardGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                                     alpha=0.70, isOffPolicy=True, name="WLF")
+                                     alpha=0.70, is_off_policy=True, name="WLF")
         else:
 
             wallLeftForwardGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                                     alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), isOffPolicy=True,
+                                     alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), is_off_policy=True,
                                      name="WLF")
 
         def wallLeftForwardCumulant(phi):
             wallLeftPredict = self.gvfs['TL'].prediction(phi)
-            if wallLeftPredict > touchThreshold:
+            if wallLeftPredict > touch_threshold:
                 return 1.0
             else:
                 return 0.0
@@ -319,7 +317,7 @@ class Foreground:
 
         def wallLeftGamma(phi):
             wallLeftPredict = self.gvfs['TL'].prediction(phi)
-            if wallLeftPredict > touchThreshold:
+            if wallLeftPredict > touch_threshold:
                 return 0.9
             else:
                 return 0.0
@@ -333,7 +331,7 @@ class Foreground:
         for name, gvf in self.gvfs.items():
             gvf.learn(lastState=self.old_phi, action=self.action, newState=self.phi)
 
-    def updateUI(self):
+    def update_ui(self):
         # Create a voronoi image
         frameError = False
         try:
@@ -487,7 +485,7 @@ class Foreground:
         self.learn()
 
         # Update our display (for debugging and progress reporting)
-        self.updateUI()
+        self.update_ui()
 
     def start(self):
         """Initializes the plotter and runs the experiment."""

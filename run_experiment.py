@@ -15,21 +15,6 @@ else:
 
     print = functools.partial(print, flush=True)
 
-
-def did_touch_cumulant(phi):
-    """Checks to see if the the touch.
-    Args:
-        phi (ndarray): a feature-vector which describes the current state.
-    Returns:
-        did_touch (int): whether the agent touched a wall.
-    """
-    return phi[-1:]
-
-
-def did_touch_gamma(phi):
-    return 0
-
-
 class Foreground:
 
     def __init__(self, show_display=True, steps_before_updating_display=0, steps_before_prompting_for_action=0):
@@ -78,16 +63,78 @@ class Foreground:
         """"""
         return 0
 
-    def configure_gvfs(self, simple_phi=False):
-        """Configures the GVFs horde based on Mark Ring's thought experiment."""
-        touch_threshold = 0.8  # The prediction value before it is considered to be true.
-
+    def configure_gvfs_net(self):
+        """Follows the thought experiment from Ring (2016) to construct a multi-layer horde which gradually constructs
+        predictions which are increasingly abstract. """
+        # [       'forward', "turn_left", "turn_right", "extend_hand"]
         # =============================================================================================================
         # Layer 1 - Touch (T)
         # =============================================================================================================
 
+        layers = []
+        number_of_active_features = 0
+        elegibility_decay = 0
+        gamma = 0
+        init_alpha = 1/number_of_active_features
+        policy = [0, 0, 0, 1]      # with probability 1, extend hand
+        discounts = np.concatenate
+
+        # =============================================================================================================
+        # Layer 2 - Touch Left (TL) and Touch Right (TR)
+        # =============================================================================================================
+
+        policy_left = [0, 1, 0, 0]
+        policy_right = [0, 0, 1, 0]
+
+        # =============================================================================================================
+        # Layer 3 - Touch Behind
+        # =============================================================================================================
+
+
+
+        # =============================================================================================================
+        # Layer 4 - Touch Adjacent (TA)
+        # =============================================================================================================
+
+
+
+        # =============================================================================================================
+        # Layer 5 - Distance to touch adjacent (DTA)
+        # Measures how many steps the agent is from being adjacent touch something.
+        # * Note that because our agent only rotates 90 degrees at a time, this is basically the
+        # number of steps to a wall. So the cumulant could be T. But we have the cumulant as TA instead
+        # since this would allow for an agent whose rotations are not 90 degrees.
+        # =============================================================================================================
+
+        # =============================================================================================================
+        # Layer 6 - Distance to Left (DTL), distance to right (DTR), distance back (DTB)
+        # Measures how many steps to the left, or right, or behind,the agent is from a wall.
+        # =============================================================================================================
+
+
+    def configure_gvfs(self, simple_phi=False):
+        """Configures the GVFs horde based on Mark Ring's thought experiment."""
+        alpha = 1/400.
+        touch_threshold = 0.8  # The prediction value before it is considered to be true.
+        print(NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES)
+
+        # =============================================================================================================
+        # Layer 1 - Touch (T)
+        # =============================================================================================================
+        def did_touch_cumulant(phi):
+            """Checks to see if the the touch.
+            Args:
+                phi (ndarray): a feature-vector which describes the current state.
+            Returns:
+                did_touch (int): whether the agent touched a wall.
+            """
+            return phi[-1:]
+
+        def did_touch_gamma(phi):
+            return 0
+
         touch_gvf = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                        alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), is_off_policy=True, name="T")
+                        alpha=alpha, is_off_policy=True, name="T")
 
         touch_gvf.cumulant = did_touch_cumulant
         touch_gvf.policy = self.behavior_policy.extendHandPolicy
@@ -100,7 +147,7 @@ class Foreground:
         # =============================================================================================================
 
         turn_left_gvf = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                            alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), is_off_policy=True, name="TL")
+                            alpha=alpha, is_off_policy=True, name="TL")
 
         turn_left_gvf.cumulant = self.gvfs['T'].prediction
         turn_left_gvf.policy = self.behavior_policy.turnLeftPolicy
@@ -108,7 +155,7 @@ class Foreground:
         self.gvfs[turn_left_gvf.name] = turn_left_gvf
 
         turn_right_gvf = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                             alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), is_off_policy=True, name="TR")
+                             alpha=alpha, is_off_policy=True, name="TR")
 
         turn_right_gvf.cumulant = self.gvfs['T'].prediction
         turn_right_gvf.policy = self.behavior_policy.turnRightPolicy
@@ -120,7 +167,7 @@ class Foreground:
         # =============================================================================================================
 
         touch_behind_gvf = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                                   alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), is_off_policy=True,
+                                   alpha=alpha, is_off_policy=True,
                                    name="TB")
 
         touch_behind_gvf.cumulant = self.gvfs['TR'].prediction
@@ -133,11 +180,13 @@ class Foreground:
         # =============================================================================================================
 
         touch_adjacent_gvf = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                                 alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), is_off_policy=True,
+                                 alpha=alpha, is_off_policy=True,
                                  name="TA")
+        def ta_cumulant(phi):
+            return 1
 
-        def ta_learn(lastState, action, newState):
-            return
+        def ta_gamma(phi):
+            return 1
 
         def ta_prediction(phi):
             predict = max(
@@ -146,8 +195,9 @@ class Foreground:
             return predict
 
         touch_adjacent_gvf.prediction = ta_prediction
-        touch_adjacent_gvf.learn = ta_learn
-
+        touch_adjacent_gvf.cumulant = ta_cumulant
+        touch_adjacent_gvf.gamma = ta_gamma
+        touch_adjacent_gvf.policy = self.behavior_policy.mostly_forward_policy
         self.gvfs[touch_adjacent_gvf.name] = touch_adjacent_gvf
 
         # =============================================================================================================
@@ -159,17 +209,17 @@ class Foreground:
         # =============================================================================================================
 
         distanceToTouchAdjacentGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                                         alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES),
+                                         alpha=alpha,
                                          is_off_policy=True, name="DTA")
 
         def distanceToTouchAdjacentCumulant(phi):
-            return 1.0
+            return self.gvfs['TA'].prediction(phi)
 
         distanceToTouchAdjacentGVF.cumulant = distanceToTouchAdjacentCumulant
         distanceToTouchAdjacentGVF.policy = self.behavior_policy.moveForwardPolicy
 
         def distanceToTouchAdjacentGamma(phi):
-            prediction = self.gvfs['T'].prediction(phi)  # TODO - change to self.gvfs['TA'].prediction() after testing
+            prediction = self.gvfs['TA'].prediction(phi)  # TODO - change to self.gvfs['TA'].prediction() after testing
             if prediction > touch_threshold:
                 return 0
             else:
@@ -185,7 +235,7 @@ class Foreground:
         # =============================================================================================================
 
         distanceToLeftGVF = GVF(featureVectorLength=TOTAL_FEATURE_LENGTH,
-                                alpha=0.10 / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), is_off_policy=True,
+                                alpha=alpha / (NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES), is_off_policy=True,
                                 name="DTL")
 
         def distanceToLeftCumulant(phi):
@@ -266,7 +316,7 @@ class Foreground:
             gvf.learn(lastState=self.old_phi, action=self.action, newState=self.phi)
 
 
-    def update_ui(self):
+    def update_ui(self, action):
         # Create a voronoi image
         frameError = False
         try:
@@ -349,7 +399,8 @@ class Foreground:
                                         distanceBack=distanceBack,
                                         distanceBackPrediction=distanceBackPrediction,
                                         wallLeftForward=wallLeftForward,
-                                        wallLeftForwardPrediction=wallLeftForwardPrediction
+                                        wallLeftForwardPrediction=wallLeftForwardPrediction,
+                                        action=action
                                         )
                     # time.sleep(1.0)
 
@@ -357,7 +408,7 @@ class Foreground:
         """Using the behaviour policy, selects an action. After selecting an action, updates the GVFs based on the
         action."""
         # todo: this is set as a variable in learn_from_action; we don't need to have two dependent calls...
-        action = self.behavior_policy.mostly_forward_and_touch_policy(self.state)
+        action = self.behavior_policy.randomPolicy(self.state)
         self.learn_from_action(action)
 
     def learn_from_action(self, action):
@@ -390,7 +441,7 @@ class Foreground:
         self.learn()
 
         # Update our display (for debugging and progress reporting)
-        self.update_ui()
+        self.update_ui(action)
 
     def start(self):
         """Initializes the plotter and runs the experiment."""
@@ -405,6 +456,6 @@ class Foreground:
 
 
 # fg.read_gvf_weights()
-fg = Foreground(show_display=True, steps_before_updating_display=0, steps_before_prompting_for_action=12)
+fg = Foreground(show_display=True, steps_before_updating_display=1200, steps_before_prompting_for_action=12000)
 
 fg.start()
