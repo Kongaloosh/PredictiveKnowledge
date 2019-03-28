@@ -32,7 +32,7 @@ NUMBER_OF_ACTIONS = 4
 NUM_PREDICTION_TILINGS = 4
 # TOTAL_FEATURE_LENGTH =NUMBER_OF_ACTIONS * (PIXEL_FEATURE_LENGTH * NUMBER_OF_PIXEL_SAMPLES + NUMBER_OF_GVFS * PREDICTION_FEATURE_LENGTH) + DID_TOUCH_FEATURE_LENGTH
 TOTAL_FEATURE_LENGTH = PIXEL_FEATURE_LENGTH * NUMBER_OF_PIXEL_SAMPLES + NUMBER_OF_GVFS * PREDICTION_FEATURE_LENGTH * NUMBER_OF_ACTIONS + DID_TOUCH_FEATURE_LENGTH + 1
-
+TOTAL_FEATURE_LENGTH -= NUMBER_OF_GVFS*PREDICTION_FEATURE_LENGTH*NUMBER_OF_ACTIONS
 # Channels
 RED_CHANNEL = 0
 GREEN_CHANNEL = 1
@@ -118,7 +118,8 @@ class StateRepresentation(object):
         except KeyError:
             return self.get_empty_phi()     # if there is no frame, return an empty feature vector.
 
-        phi = []
+        # phi = [0] * 25601
+        phi = [1]
 
         # For the points we are subsampling into our representation...
         for point in self.pointsOfInterest:
@@ -138,22 +139,23 @@ class StateRepresentation(object):
             phi.extend(pixel_rep)
 
         # Add the values for each of the gvf predictions + previous action using the previous state
-        for name, gvf in self.gvfs.items():
-
-            for key in self.behaviour_policy.ACTIONS:
-                prediction_rep = np.zeros(PREDICTION_FEATURE_LENGTH)
-                if self.behaviour_policy.ACTIONS[key] == previous_action:
-                    prediction = gvf.prediction(previous_phi)
-                    indexes = tiles(NUM_PREDICTION_TILINGS, 16, [prediction])
-                    for index in indexes:
-                        prediction_rep[index] = 1.0
-
-                phi.extend(prediction_rep)
+        # for name, gvf in self.gvfs.items():
+        #
+        #     for key in self.behaviour_policy.ACTIONS:
+        #         prediction_rep = np.zeros(PREDICTION_FEATURE_LENGTH)
+        #         if self.behaviour_policy.ACTIONS[key] == previous_action:
+        #             prediction = gvf.prediction(previous_phi)
+        #             print(prediction)
+        #             indexes = tiles(NUM_PREDICTION_TILINGS, 16, [prediction])
+        #             for index in indexes:
+        #                 prediction_rep[index] = 1.0
+        #
+        #         phi.extend(prediction_rep)
 
         did_touch = state['touchData']
         phi.append(float(did_touch))
-        phi.append(1.0)   # bias bit
         return np.array(phi)
+
 
     def get_cheating_phi(self, state, previousAction):
         if not state:
