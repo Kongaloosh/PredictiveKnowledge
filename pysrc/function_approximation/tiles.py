@@ -50,7 +50,6 @@ Useful routines and classes:
 
 import random
 import math
-import operator
 
 _maxnumfloats = 20  # maximum number of variables used in one grid
 _maxLongint = 2147483647  # maximum integer
