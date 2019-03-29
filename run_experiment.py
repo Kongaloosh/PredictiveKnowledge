@@ -11,7 +11,7 @@ from pysrc.prediction.network.td_network import *
 from pysrc.prediction.network.off_policy_horde import HordeHolder, HordeLayer
 from pysrc.control.control_agents import RandomAgent
 from pysrc.function_approximation.StateRepresentation import Representation
-from pysrc.prediction.cumulants import cumulant
+from pysrc.prediction.cumulants.cumulant import Cumulant
 
 if sys.version_info[0] == 2:
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
@@ -20,13 +20,13 @@ else:
     print = functools.partial(print, flush=True)
 
 
-class MinecraftCumulantTouch(cumulant):
+class MinecraftCumulantTouch(Cumulant):
 
     def cumulant(self, obs):
         return obs['touchData']
 
 
-class MinecraftCumulantPrediction(cumulant):
+class MinecraftCumulantPrediction(Cumulant):
 
     def __init__(self, i):
         self.prediction_index = i
