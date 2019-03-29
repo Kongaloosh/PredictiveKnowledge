@@ -357,13 +357,16 @@ class HordeHolder(HordeLayer):
             Observations (list): the last report from the environment.
             layer (HordeLayer): the present layer
             """
+
         # if this is the first layer, we don't use the last layer's predictions, we use the observations
         if remove_base:
             state = []
         else:
             state = observations  # these states will not be included in the function approximation
+
         # we start the state with the observations so that all other layers have access to the underlying obs
         # for the construction of the baseline cumulants.
+
         if type(predictions) is type(None):
             state = np.concatenate((state, observations))
         # if this is the second layer, and a skip layer, we use the observations, and the predictions
@@ -380,13 +383,8 @@ class HordeHolder(HordeLayer):
 
     def step(self, observations, policy=None, action=None, recurrance=False, skip=False, ude=False, remove_base=False, **vals):
         """Update the Network"""
-        # get the next feature vector
         predictions = None
-        # i = 0
         for layer in self.layers:
-            # if i == 0:
-            #     remove_base = True
-            # i += 1
             state = self.generate_state(observations, layer, predictions, recurrance, skip, ude, remove_base)
             predictions = layer.step(state, policy, action, remove_base)
         return predictions
