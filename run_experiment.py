@@ -10,13 +10,49 @@ from PIL import Image
 from pysrc.prediction.network.td_network import *
 from pysrc.prediction.network.off_policy_horde import HordeHolder, HordeLayer
 from pysrc.control.control_agents import RandomAgent
-from pysrc.function_approximation.StateRepresentation import BaseLayerRepresentation, UpperLayerRepresentation
+from pysrc.function_approximation.StateRepresentation import Representation
+from pysrc.prediction.cumulants import cumulant
 
 if sys.version_info[0] == 2:
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 else:
     import functools
     print = functools.partial(print, flush=True)
+
+
+class MinecraftCumulantTouch(cumulant):
+
+    def cumulant(self, obs):
+        return obs['touchData']
+
+
+class MinecraftCumulantPrediction(cumulant):
+
+    def __init__(self, i):
+        self.prediction_index = i
+
+    def cumulant(self, obs):
+        return obs['predictions'][self.prediction_index]
+
+
+class MinecraftHordeHolder(HordeHolder):
+    """The minecraft experiment setup is slightly different from what we're used to doing, so I'm extending the state
+    construction functionality such that it"""
+
+    def __init__(self, layers, num_actions):
+        """"Initializes a horde holder which is responsible for managing a hierarchical collection of predictions.
+        Args:
+            layers (list): a list which contains instances of HordeLayer.
+            num_actions (int): the number of actions in the current domain.
+        """
+        super(MinecraftHordeHolder).__init__(layers=layers,num_actions=num_actions)
+
+    def step(self, observations, policy=None, action=None, recurrance=False, skip=False, ude=False, remove_base=False, **vals):
+        predictions = None
+        for layer in self.layers:
+            # Adds the most recent predictions to the observations; will be None if base layer.
+            observations['predictions'] = predictions
+            layer.step(observations)
 
 
 class Foreground:
@@ -28,12 +64,11 @@ class Foreground:
             steps_before_updating_display (int): the number of time-steps which are executed before presenting the display.
             steps_before_prompting_for_action (int): the number of time-steps which are executed before giving the user
             control.
-            
         """
         self.show_display = show_display
         self.steps_before_prompting_for_action = steps_before_prompting_for_action
         self.steps_before_updating_display = steps_before_updating_display
-        self.grid_world = GridWorld('model/grids', initialX=1, initialY=1)
+        self.grid_world = GridWorld('model/grids', initial_x=1, initial_y=1)
         self.agent = RandomAgent(action_space=4, observation_space=0)
         if self.show_display:
             self.display = Display(self)
@@ -59,10 +94,10 @@ class Foreground:
         number_of_active_features = 400
         eligibility_decay = 0.9
         discounts = np.array([0])
-        function_approximation = BaseLayerRepresentation()
+        function_approximation = Representation()
         init_alpha = 1/function_approximation.get_num_active()
         policies = [[0, 0, 0, 1] ]     # with probability 1, extend hand
-        cumulant = [StimuliCumulant()]    # todo: what index?
+        cumulant = [MinecraftCumulantTouch()]    # todo: what index?
 
         network = HordeLayer(
             function_approximation,
@@ -80,9 +115,11 @@ class Foreground:
         # Layer 2 - Touch Left (TL) and Touch Right (TR)
         # =============================================================================================================
 
+        base_rep_dimension = NUM_IMAGE_TILINGS*NUMBER_OF_PIXEL_SAMPLES
+
         policies = [[0, 1, 0, 0], [0, 0, 1, 0]]     # turn left and turn right
-        cumulant = [StimuliCumulant(), StimuliCumulant()]    # todo: what index?
-        function_approximation = UpperLayerRepresentation()
+        cumulant = [MinecraftCumulantPrediction(0), MinecraftCumulantPrediction(1)]    # todo: what index?
+        function_approximation = Representation(base_rep_dimension+1*PREDICTION_FEATURE_LENGTH)
         init_alpha = 1 / function_approximation.get_num_active()
         network = HordeLayer(
             function_approximation,
@@ -122,7 +159,7 @@ class Foreground:
         # Layer 6 - Distance to Left (DTL), distance to right (DTR), distance back (DTB)
         # Measures how many steps to the left, or right, or behind,the agent is from a wall.
         # =============================================================================================================
-        return HordeHolder(layers, number_of_actions)
+        return MinecraftHordeHolder(layers, number_of_actions)
 
     def update_ui(self, action):
         """Re-draws the UI
@@ -216,7 +253,7 @@ class Foreground:
         # If we've done 100 steps; pretty print the progress.
         if self.action_count % 100 == 0:
             print("Step " + str(self.action_count) + " ... ")
-        observation = self.grid_world.takeAction(action)
+        observation = self.grid_world.take_action(action)
         # Do the learning
         self.network.step(observation)
         # Update our display (for debugging and progress reporting)

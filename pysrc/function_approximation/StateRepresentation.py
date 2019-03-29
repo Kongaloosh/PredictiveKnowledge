@@ -51,8 +51,8 @@ class Representation(object):
             non_linearity (int): the non-linearity applied to the ANN
             """
         # initialize the parameters of a neural network
-        self.dimensions = _dimensions
-        self.num_features = _dimensions - 1  # this is to account for the bias unit
+        self.dimensions = _dimensions + 1
+        self.num_features = _dimensions + 1   # this is to account for the bias unit
         self.g = np.zeros((self.dimensions, self.num_features))
         self.phi = None
 
@@ -66,7 +66,7 @@ class Representation(object):
             self.pointsOfInterest.append(point)
 
     def get_num_active(self):
-        return self.num_features + 1
+        return self.num_features
 
     def save_points_of_interest(self, file_name):
         """Saves the subsampled pixel locations to a file.
