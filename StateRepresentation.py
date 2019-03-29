@@ -97,7 +97,7 @@ class StateRepresentation(object):
     def get_empty_phi():
         return np.zeros(TOTAL_FEATURE_LENGTH)
 
-    def get_phi(self, previous_phi, previous_action, state, simple_phi=False, ):
+    def get_phi(self, state):
         """
             Name: get_phi
             Description: Creates the feature representation (phi) for a given observation. The representation
@@ -107,8 +107,6 @@ class StateRepresentation(object):
             Input: the observation. This is the full pixel rgbd values for each of the IMAGE_WIDTH X IMAGE_HEIGHT pixels in view
             Output: The feature vector
             """
-        if simple_phi:
-            return self.get_cheating_phi(state, previous_action)
 
         if not state:
             return None
@@ -118,25 +116,25 @@ class StateRepresentation(object):
         except KeyError:
             return self.get_empty_phi()     # if there is no frame, return an empty feature vector.
 
-        # phi = [0] * 25601
-        phi = [1]
+        phi = [0] * 25601
+        # phi = [1]
 
-        # For the points we are subsampling into our representation...
-        for point in self.pointsOfInterest:
-            # Get the pixel value at that point
-            x = point[0]
-            y = point[1]
-            red, green, blue = self.get_rgb_pixel_from_frame(frame, x, y)
-            red = red / 256.0
-            green = green / 256.0
-            blue = blue / 256.0
-
-            pixel_rep = np.zeros(PIXEL_FEATURE_LENGTH)
-            # Tile code these 3 values together
-            indexes = tiles(NUM_IMAGE_TILINGS, PIXEL_FEATURE_LENGTH, [red, green, blue])
-            pixel_rep[indexes] = 1.0
-            # Assemble with other pixels
-            phi.extend(pixel_rep)
+        # # For the points we are subsampling into our representation...
+        # for point in self.pointsOfInterest:
+        #     # Get the pixel value at that point
+        #     x = point[0]
+        #     y = point[1]
+        #     red, green, blue = self.get_rgb_pixel_from_frame(frame, x, y)
+        #     red = red / 256.0
+        #     green = green / 256.0
+        #     blue = blue / 256.0
+        #
+        #     pixel_rep = np.zeros(PIXEL_FEATURE_LENGTH)
+        #     # Tile code these 3 values together
+        #     indexes = tiles(NUM_IMAGE_TILINGS, PIXEL_FEATURE_LENGTH, [red, green, blue])
+        #     pixel_rep[indexes] = 1.0
+        #     # Assemble with other pixels
+        #     phi.extend(pixel_rep)
 
         # Add the values for each of the gvf predictions + previous action using the previous state
         # for name, gvf in self.gvfs.items():

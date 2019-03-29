@@ -7,6 +7,8 @@ from display import *
 from GVF import *
 from GridWorld import *
 from PIL import Image
+from pysrc.prediction.network.td_network import *
+from pysrc.control.control_agents import RandomAgent
 
 if sys.version_info[0] == 2:
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
@@ -14,6 +16,7 @@ else:
     import functools
 
     print = functools.partial(print, flush=True)
+
 
 class Foreground:
 
@@ -30,7 +33,8 @@ class Foreground:
         self.steps_before_prompting_for_action = steps_before_prompting_for_action
         self.steps_before_updating_display = steps_before_updating_display
         self.grid_world = GridWorld('model/grids', initialX=1, initialY=1)
-        self.behavior_policy = BehaviorPolicy()
+        # self.behavior_policy = BehaviorPolicy()
+        self.agent = RandomAgent(action_space=4, observation_space=0)
 
         if self.show_display:
             self.display = Display(self)
@@ -77,7 +81,10 @@ class Foreground:
         gamma = 0
         init_alpha = 1/number_of_active_features
         policy = [0, 0, 0, 1]      # with probability 1, extend hand
-        discounts = np.concatenate
+        dimension = NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES
+        cumulant = StimuliCumulant
+
+        discounts = np.concatenate()
 
         # =============================================================================================================
         # Layer 2 - Touch Left (TL) and Touch Right (TR)
@@ -111,10 +118,10 @@ class Foreground:
         # Measures how many steps to the left, or right, or behind,the agent is from a wall.
         # =============================================================================================================
 
-
     def configure_gvfs(self, simple_phi=False):
         """Configures the GVFs horde based on Mark Ring's thought experiment."""
-        alpha = 1/400.
+        # alpha = 1/400.
+        alpha = 1.
         touch_threshold = 0.8  # The prediction value before it is considered to be true.
         print(NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES)
 
@@ -309,143 +316,111 @@ class Foreground:
         wallLeftForwardGVF.policy = self.behavior_policy.moveForwardPolicy
         self.gvfs[wallLeftForwardGVF.name] = wallLeftForwardGVF
 
-
     def learn(self):
         """Updates all the GVFs in the horde."""
         for name, gvf in self.gvfs.items():
             gvf.learn(lastState=self.old_phi, action=self.action, newState=self.phi)
 
-
     def update_ui(self, action):
+        """Re-draws the UI
+
+        Args:
+            action (str): the action taken this time-step.
+
+        """
         # Create a voronoi image
-        frameError = False
+        frame_error = False
         try:
             frame = self.state['visionData']
-        except:
-            frameError = True
-            print("Error gettnig frame")
-
-        if not frameError:
-            # rgb = self.s
             if self.show_display:
                 voronoi = voronoi_from_pixels(pixels=frame, dimensions=(WIDTH, HEIGHT),
                                               pixelsOfInterest=self.state_representation.pointsOfInterest)
             # cv2.imshow('My Image', voronoi)
             # cv2.waitKey(0)
 
-            if self.state == False:
-                didTouch = False
+            if self.state is False:     # todo: should be None for first val, not bool.
+                did_touch = False
             else:
-                didTouch = self.state['touchData']
+                did_touch = self.state['touchData']
 
-            inFront = peak.isWallInFront(self.state['x'], self.state['y'], self.state['yaw'], self.grid_world)
-            touchPrediction = self.gvfs['T'].prediction(self.phi)
+            # find the ground truth of the predictions.
+            in_front = peak.isWallInFront(self.state['x'], self.state['y'], self.state['yaw'], self.grid_world)
+            on_left = peak.isWallOnLeft(self.state['x'], self.state['y'], self.state['yaw'], self.grid_world)
+            on_right = peak.isWallOnRight(self.state['x'], self.state['y'], self.state['yaw'], self.grid_world)
+            is_behind = peak.isWallBehind(self.state['x'], self.state['y'], self.state['yaw'], self.grid_world)
+            wall_adjacent = peak.isWallAdjacent(self.state['x'], self.state['y'], self.state['yaw'], self.grid_world)
+            distance_to_adjacent = peak.distanceToAdjacent(self.state['x'], self.state['y'], self.state['yaw'],
+                                                           self.grid_world)
+            distance_left = peak.distanceLeftToAdjacent(self.state['x'], self.state['y'], self.state['yaw'],
+                                                        self.grid_world)
+            distance_right = peak.distanceRightToAdjacent(self.state['x'], self.state['y'], self.state['yaw'],
+                                                          self.grid_world)
+            distance_back = peak.distanceBehindToAdjacent(self.state['x'], self.state['y'], self.state['yaw'],
+                                                          self.grid_world)
 
-            gameImage = Image.frombytes('RGB', (WIDTH, HEIGHT), bytes(frame))
+            # get the most recent predictions
+            touch_prediction = self.gvfs['T'].prediction(self.phi)
+            turn_left_and_touch_prediction = self.gvfs['TL'].prediction(self.phi)
+            turn_right_and_touch_prediction = self.gvfs['TR'].prediction(self.phi)
+            touch_behind_prediction = self.gvfs['TB'].prediction(self.phi)
+            is_wall_adjacent_prediction = self.gvfs['TA'].prediction(self.phi)
+            distance_to_adjacent_prediction = self.gvfs['DTA'].prediction(self.phi)
+            distance_left_prediction = self.gvfs['DTL'].prediction(self.phi)
+            distance_right_prediction = self.gvfs['DTR'].prediction(self.phi)
+            distance_back_prediction = self.gvfs['DTB'].prediction(self.phi)
+            wall_left_forward = peak.wallLeftForward(self.state['x'], self.state['y'], self.state['yaw'], self.grid_world)
+            wall_left_forward_prediction = self.gvfs['WLF'].prediction(self.phi)
 
-            onLeft = peak.isWallOnLeft(self.state['x'], self.state['y'], self.state['yaw'], self.grid_world)
-            turnLeftAndTouchPrediction = self.gvfs['TL'].prediction(self.phi)
-
-            onRight = peak.isWallOnRight(self.state['x'], self.state['y'], self.state['yaw'], self.grid_world)
-            turnRightAndtouchPrediction = self.gvfs['TR'].prediction(self.phi)
-
-            isBehind = peak.isWallBehind(self.state['x'], self.state['y'], self.state['yaw'], self.grid_world)
-            touchBehindPrediction = self.gvfs['TB'].prediction(self.phi)
-
-            wallAdjacent = peak.isWallAdjacent(self.state['x'], self.state['y'], self.state['yaw'], self.grid_world)
-            isWallAdjacentPrediction = self.gvfs['TA'].prediction(self.phi)
-
-            distanceToAdjacent = peak.distanceToAdjacent(self.state['x'], self.state['y'], self.state['yaw'],
-                                                         self.grid_world)
-            distanceToAdjacentPrediction = self.gvfs['DTA'].prediction(self.phi)
-
-            distanceLeft = peak.distanceLeftToAdjacent(self.state['x'], self.state['y'], self.state['yaw'],
-                                                       self.grid_world)
-            distanceLeftPrediction = self.gvfs['DTL'].prediction(self.phi)
-
-            distanceRight = peak.distanceRightToAdjacent(self.state['x'], self.state['y'], self.state['yaw'],
-                                                         self.grid_world)
-            distanceRightPrediction = self.gvfs['DTR'].prediction(self.phi)
-
-            distanceBack = peak.distanceBehindToAdjacent(self.state['x'], self.state['y'], self.state['yaw'],
-                                                         self.grid_world)
-            distanceBackPrediction = self.gvfs['DTB'].prediction(self.phi)
-
-            wallLeftForward = peak.wallLeftForward(self.state['x'], self.state['y'], self.state['yaw'], self.grid_world)
-            wallLeftForwardPrediction = self.gvfs['WLF'].prediction(self.phi)
+            game_image = Image.frombytes('RGB', (WIDTH, HEIGHT), bytes(frame))
 
             if self.show_display:
                 if self.action_count > self.steps_before_updating_display:
                     self.display.update(voronoiImage=voronoi,
-                                        gameImage=gameImage,
+                                        gameImage=game_image,
                                         numberOfSteps=self.action_count,
-                                        currentTouchPrediction=touchPrediction,
-                                        wallInFront=inFront,
-                                        didTouch=didTouch,
-                                        turnLeftAndTouchPrediction=turnLeftAndTouchPrediction,
-                                        wallOnLeft=onLeft,
-                                        turnRightAndTouchPrediction=turnRightAndtouchPrediction,
-                                        touchBehindPrediction=touchBehindPrediction,
-                                        wallBehind=isBehind,
-                                        touchAdjacentPrediction=isWallAdjacentPrediction,
-                                        wallAdjacent=wallAdjacent,
-                                        wallOnRight=onRight,
-                                        distanceToAdjacent=distanceToAdjacent,
-                                        distanceToAdjacentPrediction=distanceToAdjacentPrediction,
-                                        distanceToLeft=distanceLeft,
-                                        distanceToLeftPrediction=distanceLeftPrediction,
-                                        distanceToRight=distanceRight,
-                                        distanceToRightPrediction=distanceRightPrediction,
-                                        distanceBack=distanceBack,
-                                        distanceBackPrediction=distanceBackPrediction,
-                                        wallLeftForward=wallLeftForward,
-                                        wallLeftForwardPrediction=wallLeftForwardPrediction,
+                                        currentTouchPrediction=touch_prediction,
+                                        wallInFront=in_front,
+                                        didTouch=did_touch,
+                                        turnLeftAndTouchPrediction=turn_left_and_touch_prediction,
+                                        wallOnLeft=on_left,
+                                        turnRightAndTouchPrediction=turn_right_and_touch_prediction,
+                                        touchBehindPrediction=touch_behind_prediction,
+                                        wallBehind=is_behind,
+                                        touchAdjacentPrediction=is_wall_adjacent_prediction,
+                                        wallAdjacent=wall_adjacent,
+                                        wallOnRight=on_right,
+                                        distanceToAdjacent=distance_to_adjacent,
+                                        distanceToAdjacentPrediction=distance_to_adjacent_prediction,
+                                        distanceToLeft=distance_left,
+                                        distanceToLeftPrediction=distance_left_prediction,
+                                        distanceToRight=distance_right,
+                                        distanceToRightPrediction=distance_right_prediction,
+                                        distanceBack=distance_back,
+                                        distanceBackPrediction=distance_back_prediction,
+                                        wallLeftForward=wall_left_forward,
+                                        wallLeftForwardPrediction=wall_left_forward_prediction,
                                         action=action
                                         )
-                    # time.sleep(1.0)
+        except KeyError:                        # not sure if this is what we are supposed to be catching, but hey...
+            print("Error getting frame")
 
     def learn_from_behavior_policy_action(self):
         """Using the behaviour policy, selects an action. After selecting an action, updates the GVFs based on the
         action."""
         # todo: this is set as a variable in learn_from_action; we don't need to have two dependent calls...
-        action = self.behavior_policy.randomPolicy(self.state)
-        self.learn_from_action(action)
-
-    def learn_from_action(self, action):
-        """Given the most recent action, """
-        self.action = action
+        action = self.agent.get_action()
         self.action_count += 1
         # If we've done 100 steps; pretty print the progress.
         if self.action_count % 100 == 0:
             print("Step " + str(self.action_count) + " ... ")
-
-        self.old_state = self.state
-        self.old_phi = self.phi
-
-        observation = self.grid_world.takeAction(self.action)
-        self.state = observation
-
-        if self.old_state:
-            yaw = self.old_state['yaw']
-            xPos = self.old_state['x']
-            zPos = self.old_state['y']
-
-        yaw = self.state['yaw']
-        xPos = self.state['x']
-        zPos = self.state['y']
-
-        self.phi = self.state_representation.get_phi(previous_phi=self.old_phi, state=self.state,
-                                                     previous_action=self.action)
-
+        observation = self.grid_world.takeAction(action)
         # Do the learning
-        self.learn()
-
+        self.network.step(observation)
         # Update our display (for debugging and progress reporting)
         self.update_ui(action)
 
     def start(self):
         """Initializes the plotter and runs the experiment."""
-        self.action = self.behavior_policy.ACTIONS['extend_hand']  # the first action is always 'touch'
         # Loop until mission ends:
         while self.action_count < self.steps_before_prompting_for_action:
             # Select and send action. Need to sleep to give time for simulator to respond
