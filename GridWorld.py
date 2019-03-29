@@ -1,146 +1,84 @@
-from random import randint
-import numpy as np
-import random
-from PIL import ImageTk
-from PIL import Image
-import json
-from constants import *
-import pickle
 from Voronoi import *
+
 
 class GridWorld:
 
-  def __init__(self, modelFile, initialX = 0, initialY = 0, initialYaw = 0):
-    #Initialize the environment using the configuration file
-    print("Initializing grid world ...")
-    self.grids = {}
-    with open(modelFile, 'rb') as gridDataFile:
-      self.grids = pickle.load(gridDataFile)
+    def __init__(self, model_file, initial_x=0, initial_y=0, initial_yaw=0):
+        # Initialize the environment using the configuration file
+        print("Initializing grid world ...")
+        self.grids = {}
+        with open(model_file, 'rb') as gridDataFile:
+            self.grids = pickle.load(gridDataFile)
 
-    self.currentX = initialX
-    self.currentY = initialY
-    self.currentYaw = initialYaw
-    self.ACTIONS = [
-      'forward',
-      'turn_left',
-      'turn_right',
-      'extend_hand'
-    ]
+        self.current_x = initial_x
+        self.current_y = initial_y
+        self.current_yaw = initial_yaw
+        self.ACTIONS = [
+            'forward',
+            'turn_left',
+            'turn_right',
+            'extend_hand'
+        ]
 
-    #self.imageDictionary = {}
-    print("Initiailized grid world")
+    def grid_for(self, x, y):
+        k = self.key_name_for(x, y)
+        if k in self.grids:
+            return self.grids[k]
+        else:
+            return None
 
-  """
-  def imageDataForFile(self, imageFile):
-    #Queries memory for the data to return it. Reads from disk and stores to memory if not available.
-    if imageFile in self.imageDictionary:
-      return self.imageDictionary[imageFile]
-    else:
-      with open(imageFile, "rb") as imageFile:
-        f = imageFile.read()
-        b = bytearray(f)
-        self.imageDictionary[imageFile] = b
-        return b
+    @staticmethod
+    def key_name_for(x, y):
+        return str(x) + ',' + str(y)
 
-  """
-  def gridFor(self, x, y):
-    k = self.keyNameFor(x, y)
-    if k in self.grids:
-      return self.grids[k]
-    else:
-      return None
+    def take_action(self, action):
 
-  def keyNameFor(self, x, y):
-    return str(x) + ',' + str(y)
+        # Set the new orientation
+        if action > 3:
+            print("Error. specified action not in action set")
+            return
 
+        did_touch = False
+        if action == 1:
+            self.current_yaw = (self.current_yaw - 90) % 360
+        elif action == 2:
+            self.current_yaw = (self.current_yaw + 90) % 360
+        elif action == 3:
+            desired_key = ''
+            if self.current_yaw == 0:
+                desired_key = self.key_name_for(self.current_x, self.current_y + 1)
+            elif self.current_yaw == 90:
+                desired_key = self.key_name_for(self.current_x - 1, self.current_y)
+            elif self.current_yaw == 180:
+                desired_key = self.key_name_for(self.current_x, self.current_y - 1)
+            elif self.current_yaw == 270:
+                desired_key = self.key_name_for(self.current_x + 1, self.current_y)
+            if desired_key not in self.grids:
+                did_touch = True
+        elif action == 4:
+            if self.current_yaw == 0:
+                desired_key = self.key_name_for(self.current_x, self.current_y + 1)
+                if desired_key in self.grids:
+                    # Move south
+                    self.current_y = self.current_y + 1
+            elif self.current_yaw == 90:
+                desired_key = self.key_name_for(self.current_x - 1, self.current_y)
+                if desired_key in self.grids:
+                    # Move west
+                    self.current_x = self.current_x - 1
+            elif self.current_yaw == 180:
+                desired_key = self.key_name_for(self.current_x, self.current_y - 1)
+                if desired_key in self.grids:
+                    # move north
+                    self.current_y = self.current_y - 1
+            elif self.current_yaw == 270:
+                desired_key = self.key_name_for(self.current_x + 1, self.current_y)
+                if desired_key in self.grids:
+                    # move east
+                    self.current_x = self.current_x + 1
 
+        current_grid_key = self.key_name_for(self.current_x, self.current_y)
 
-  def takeAction(self, action):
-
-    #Set the new orientation
-    if action not in self.ACTIONS:
-      print("Error. specified action not in action set")
-      return
-
-    didTouch = False
-
-    if action == 'turn_left':
-      self.currentYaw = (self.currentYaw - 90) % 360
-    elif action == 'turn_right':
-      self.currentYaw = (self.currentYaw + 90) % 360
-    elif action == 'extend_hand':
-      desiredKey = ''
-      if self.currentYaw == 0:
-        desiredKey = self.keyNameFor(self.currentX, self.currentY + 1)
-      elif self.currentYaw == 90:
-        desiredKey = self.keyNameFor(self.currentX - 1, self.currentY)
-      elif self.currentYaw == 180:
-        desiredKey = self.keyNameFor(self.currentX, self.currentY - 1)
-      elif self.currentYaw == 270:
-        desiredKey = self.keyNameFor(self.currentX + 1, self.currentY)
-
-      if not desiredKey in self.grids:
-        didTouch = True
-
-    elif action == 'forward':
-      if self.currentYaw == 0:
-        desiredKey = self.keyNameFor(self.currentX, self.currentY + 1)
-        if desiredKey in self.grids:
-          #Move south
-          self.currentY = self.currentY + 1
-      elif self.currentYaw == 90:
-        desiredKey = self.keyNameFor(self.currentX - 1, self.currentY)
-        if desiredKey in self.grids:
-          #Move west
-          self.currentX = self.currentX - 1
-      elif self.currentYaw == 180:
-        desiredKey = self.keyNameFor(self.currentX, self.currentY - 1)
-        if desiredKey in self.grids:
-          #move north
-          self.currentY = self.currentY - 1
-      elif self.currentYaw == 270:
-        desiredKey = self.keyNameFor(self.currentX + 1, self.currentY)
-        if desiredKey in self.grids:
-          #move east
-          self.currentX = self.currentX + 1
-
-    currentGridKey = self.keyNameFor(self.currentX, self.currentY)
-
-    #pixelData = self.imageDataForFile(self.grids[currentGridKey][str(self.currentYaw)])
-    pixelData = self.grids[currentGridKey][str(self.currentYaw)]
-    return {'visionData': pixelData, 'touchData': didTouch, 'reward':0, 'x': self.currentX, 'y': self.currentY, 'yaw': self.currentYaw}
-
-
-##########################################
-## testing ###############################
-##########################################
-
-"""
-def printImageFromObs(obs, pointsOfInterest):
-  voronoi = voronoi_from_pixels(pixels=obs['visionData'], dimensions=(WIDTH, HEIGHT),
-                                pixelsOfInterest=pointsOfInterest)
-  cv2.imshow('My Image', voronoi)
-  cv2.waitKey(0)
-
-randomYs = np.random.choice(HEIGHT, NUMBER_OF_PIXEL_SAMPLES, replace=True)
-randomXs = np.random.choice(WIDTH, NUMBER_OF_PIXEL_SAMPLES, replace=True)
-pointsOfInterest = []
-
-for i in range(100):
-  point = randomXs[i], randomYs[i]
-  pointsOfInterest.append(point)
-
-gridWorld = GridWorld('model/grids', initialX=1, initialY = 1)
-obs = gridWorld.takeAction('forward')
-printImageFromObs(obs, pointsOfInterest)
-
-obs = gridWorld.takeAction('turn_left')
-printImageFromObs(obs, pointsOfInterest)
-
-obs = gridWorld.takeAction('turn_right')
-printImageFromObs(obs, pointsOfInterest)
-
-obs = gridWorld.takeAction('extend_hand')
-printImageFromObs(obs, pointsOfInterest)
-
-"""
+        pixel_data = self.grids[current_grid_key][str(self.current_yaw)]
+        return {'visionData': pixel_data, 'touchData': did_touch, 'reward': 0, 'x': self.current_x, 'y': self.current_y,
+                'yaw': self.current_yaw}
