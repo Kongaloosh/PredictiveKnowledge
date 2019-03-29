@@ -42,6 +42,8 @@ DEPTH_CHANNEL = 3
 WALL_THRESHOLD = 0.2  # If the prediction is greater than this, the pavlov agent will avert
 
 
+
+
 class StateRepresentation(object):
 
     def __init__(self, gvfs):
@@ -153,39 +155,3 @@ class StateRepresentation(object):
         did_touch = state['touchData']
         phi.append(float(did_touch))
         return np.array(phi)
-
-
-    def get_cheating_phi(self, state, previousAction):
-        if not state:
-            return None
-        if len(state.video_frames) < 0:
-            return self.get_empty_phi()
-
-        phi = np.zeros(TOTAL_FEATURE_LENGTH)
-
-        xPos = state['x']
-        zPos = state['y']
-        yaw = state['yaw']
-        didTouch = state['touchData']
-
-        idx = int(z) * 10 + x
-
-        if yaw == 0:
-            idx = idx + 100 * 0
-        elif yaw == 90:
-            idx = idx + 100 * 1
-        elif yaw == 180:
-            idx = idx + 100 * 2
-        else:
-            idx = idx + 100 * 3
-
-        if didTouch:
-            idx = idx + 400
-
-        phi[idx] = 1
-        '''
-        if didTouch:
-          phi[len(phi) - 1] = 1
-        '''
-
-        return phi
