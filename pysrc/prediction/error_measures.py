@@ -40,7 +40,8 @@ def update_ude(beta, delta_average, delta_variance, delta):
         delta_variance = np.zeros(delta.shape)
     else:
         err = delta - delta_average
-        delta_average += (1-beta) * delta_average + err * beta
+        print(delta_average, err, beta)
+        delta_average += err * beta
         delta_variance = (1-beta) * (delta_variance + beta * err**2)
     return (np.abs(delta_average / (np.sqrt(delta_variance) + 0.001))[:, 0], delta_average, delta_variance)
 
