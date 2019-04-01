@@ -367,6 +367,7 @@ class MatrixGeneralValueFunctionNetwork(object):
         self.tau = np.ones(self.tau.shape) * 0.001
         self.eligibility_avg = np.zeros(shape=(self.eligibility_avg.shape))
 
+
 class HierarchicalMatrixNetwork(MatrixGeneralValueFunctionNetwork):
     """
     A network which has layers which prevent recurrances. Each layer is a 

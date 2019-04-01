@@ -55,9 +55,11 @@ class HordeLayer(object):
         # GTD values
         self.discounts = discounts[:, None]
         self.cumulants = cumulants
-        self.weights = np.zeros((num_predictions, self.function_approximation.numPrototypes + 1))
-        self.step_sizes = np.ones((num_predictions, self.function_approximation.numPrototypes + 1)) \
-                          * step_sizes[:, None]
+        self.weights = np.zeros((num_predictions, self.function_approximation.dimensions))
+        print(np.ones((num_predictions, self.function_approximation.dimensions)).shape,
+              step_sizes.shape)
+        self.step_sizes = np.ones((num_predictions, self.function_approximation.dimensions)) * step_sizes
+        print(self.step_sizes.shape)
         self.bias_correction = np.zeros(self.weights.shape)
         self.eligibility_traces = np.zeros(self.weights.shape)
         self.traces_lambda = traces_lambda[:, None]
@@ -83,9 +85,11 @@ class HordeLayer(object):
         self.tau = np.ones((num_predictions, 1)) * 0.001
         self.rupee_beta = 0.01
         self.rupee_h_trace = np.zeros(self.eligibility_traces.shape)
+        print("h-trace init", self.rupee_h_trace.shape, self.eligibility_traces.shape)
         self.eligibility_avg = np.zeros(self.eligibility_traces.shape)
         self.last_phi = None
         self.rupee = np.zeros((num_predictions))
+
 
     @staticmethod
     def generate_discount(default=0.95):
@@ -228,29 +232,13 @@ class HordeLayer(object):
             predictions (list): the predictions for each GVF given the observations and policy.
         """
         # get the next feature vector
-        if not remove_base:
-            add = max(len(self.min_obs) - len(observations), 0)
-            observations = np.concatenate(
-                (observations, np.zeros(add)))  # we don't have the predictions in the first layer, so concat zeros
-        self.min_obs = np.minimum(observations, self.min_obs)
-        self.max_obs = np.maximum(observations, self.max_obs)
-        observations += np.abs(self.min_obs)
-        observations = np.divide(observations, (np.abs(self.max_obs) + np.abs(self.min_obs)),
-                                 where=(np.abs(self.max_obs) + np.abs(self.min_obs)) != 0)
-        observations[np.isnan(observations)] = 0
-        observations[np.isinf(observations)] = 0
-        # we take off the protected range, as they exist only to serve as cumulants.
-        if remove_base:
-            phi_next = self.function_approximation.get_features(observations)
-        else:
-            phi_next = self.function_approximation.get_features(observations[self.protected_range:])
-        phi_next = np.concatenate((phi_next, [1]))[:, None]  # add bias
+        phi_next = self.function_approximation.get_features(observations)
         if type(self.last_phi) is np.ndarray:
             discounts = self.discounts
             if terminal_step:
                 discounts = np.zeros(self.discounts.shape)
             # calculate importance sampling
-            rho = (self.policies/policy[:, None])[action]
+            rho = (self.policies/policy)[:,action]
             # update the traces based on the new visitation
             self.eligibility_traces = accumulate(self.eligibility_traces, discounts, self.traces_lambda, phi_next, rho)
             # calculate the new cumulants
@@ -267,14 +255,14 @@ class HordeLayer(object):
             # maintain verifiers
             self.rupee, self.tau, self.eligibility_avg, self.rupee_h_trace = \
                 update_rupee(
-                    self.rupee_beta,
-                    self.tau,
-                    self.eligibility_avg,
-                    self.rupee_h_trace,
-                    self.eligibility_traces,
-                    td_error,
-                    self.step_sizes,
-                    self.last_phi
+                    beta_naught=self.rupee_beta,
+                    tau=self.tau,
+                    delta_e=self.eligibility_avg,
+                    h=self.rupee_h_trace,
+                    e=self.eligibility_traces,
+                    delta=td_error,
+                    alpha=self.step_sizes,
+                    phi=self.last_phi
                 )
             self.ude, self.delta_avg, self.delta_var = update_ude(
                 self.ude_beta,

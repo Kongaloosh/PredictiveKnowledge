@@ -30,7 +30,7 @@ NUMBER_OF_GVFS = 10
 NUMBER_OF_ACTIONS = 4
 NUM_PREDICTION_TILINGS = 4
 # TOTAL_FEATURE_LENGTH =NUMBER_OF_ACTIONS * (PIXEL_FEATURE_LENGTH * NUMBER_OF_PIXEL_SAMPLES + NUMBER_OF_GVFS * PREDICTION_FEATURE_LENGTH) + DID_TOUCH_FEATURE_LENGTH
-TOTAL_FEATURE_LENGTH = PIXEL_FEATURE_LENGTH * NUMBER_OF_PIXEL_SAMPLES + NUMBER_OF_GVFS * PREDICTION_FEATURE_LENGTH * NUMBER_OF_ACTIONS + DID_TOUCH_FEATURE_LENGTH + 1
+TOTAL_FEATURE_LENGTH = PIXEL_FEATURE_LENGTH * NUMBER_OF_PIXEL_SAMPLES + DID_TOUCH_FEATURE_LENGTH + 1
 TOTAL_FEATURE_LENGTH -= NUMBER_OF_GVFS*PREDICTION_FEATURE_LENGTH*NUMBER_OF_ACTIONS
 # Channels
 RED_CHANNEL = 0
@@ -43,7 +43,7 @@ WALL_THRESHOLD = 0.2  # If the prediction is greater than this, the pavlov agent
 class Representation(object):
 
     def __init__(self,
-                 _dimensions=NUM_IMAGE_TILINGS * NUMBER_OF_PIXEL_SAMPLES):
+                 _dimensions=PIXEL_FEATURE_LENGTH * NUMBER_OF_PIXEL_SAMPLES + DID_TOUCH_FEATURE_LENGTH):
         """
         Args:
             _dimensions (int): the number of inputs from the environment
@@ -53,6 +53,7 @@ class Representation(object):
         # initialize the parameters of a neural network
         self.dimensions = _dimensions + 1
         self.num_features = _dimensions + 1   # this is to account for the bias unit
+        self.numPrototypes = self.num_features
         self.g = np.zeros((self.dimensions, self.num_features))
         self.phi = None
 
@@ -125,7 +126,6 @@ class Representation(object):
             return self.get_empty_phi()  # if there is no frame, return an empty feature vector.
 
         phi = [1]   # bias bit.
-
         # For the points we are subsampling into our representation...
         for point in self.pointsOfInterest:
             # Get the pixel value at that point
