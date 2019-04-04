@@ -21,7 +21,7 @@ def update_rupee(beta_naught, tau, delta_e, h, e, delta, alpha, phi):
     beta = beta_naught / tau
     delta_e = (1 - beta) * delta_e + beta * e * delta
     h += alpha * (delta * e - (np.inner(h, phi) * phi))
-    return np.sqrt(np.abs(np.inner(h,e))), tau, delta_e, h
+    return np.sqrt(np.abs(np.inner(h, e))), tau, delta_e, h
 
 
 def update_ude(beta, delta_average, delta_variance, delta):
@@ -42,7 +42,7 @@ def update_ude(beta, delta_average, delta_variance, delta):
         err = delta - delta_average
         delta_average += err * beta
         delta_variance = (1-beta) * (delta_variance + beta * err**2)
-    return (np.abs(delta_average / (np.sqrt(delta_variance) + 0.001))[:, 0], delta_average, delta_variance)
+    return np.abs(delta_average / (np.sqrt(delta_variance) + 0.001))[:, 0], delta_average, delta_variance
 
 
 def left_cycle(array, val):
@@ -53,7 +53,7 @@ def left_cycle(array, val):
     Returns:
         array: updated array."""
     array[:, :-1] = array[:, 1:]
-    array[:, -1] = val[:,0]
+    array[:, -1] = val[:, 0]
     return array
 
 
@@ -76,4 +76,4 @@ def update_verifier(reward_history, gamma_history, prediction_history, gamma, re
     reward_history = left_cycle(reward_history, reward)
     prediction_history = left_cycle(prediction_history, prediction)
     estimated_return = np.sum(gamma_history ** np.array(range(gamma_history.shape[1])) * reward_history, axis=1)
-    return estimated_return, prediction_history[:,0], reward_history, gamma_history, prediction_history
+    return estimated_return, prediction_history[:, 0], reward_history, gamma_history, prediction_history

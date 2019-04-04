@@ -56,10 +56,7 @@ class HordeLayer(object):
         self.discounts = discounts[:, None]
         self.cumulants = cumulants
         self.weights = np.zeros((num_predictions, self.function_approximation.dimensions))
-        print(np.ones((num_predictions, self.function_approximation.dimensions)).shape,
-              step_sizes.shape)
         self.step_sizes = np.ones((num_predictions, self.function_approximation.dimensions)) * step_sizes
-        print(self.step_sizes.shape)
         self.bias_correction = np.zeros(self.weights.shape)
         self.eligibility_traces = np.zeros(self.weights.shape)
         self.traces_lambda = traces_lambda[:, None]
@@ -85,7 +82,6 @@ class HordeLayer(object):
         self.tau = np.ones((num_predictions, 1)) * 0.001
         self.rupee_beta = 0.01
         self.rupee_h_trace = np.zeros(self.eligibility_traces.shape)
-        print("h-trace init", self.rupee_h_trace.shape, self.eligibility_traces.shape)
         self.eligibility_avg = np.zeros(self.eligibility_traces.shape)
         self.last_phi = None
         self.rupee = np.zeros((num_predictions))
@@ -273,6 +269,7 @@ class HordeLayer(object):
             self.avg_error = self.avg_error * 0.9 + 0.1 * np.abs(td_error)
 
         self.last_phi = phi_next
+        self.last_prediction = np.inner(self.weights, phi_next)
         return self.last_prediction
 
     def predict(self, phi):

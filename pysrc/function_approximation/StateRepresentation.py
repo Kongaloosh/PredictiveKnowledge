@@ -31,7 +31,7 @@ NUMBER_OF_ACTIONS = 4
 NUM_PREDICTION_TILINGS = 4
 # TOTAL_FEATURE_LENGTH =NUMBER_OF_ACTIONS * (PIXEL_FEATURE_LENGTH * NUMBER_OF_PIXEL_SAMPLES + NUMBER_OF_GVFS * PREDICTION_FEATURE_LENGTH) + DID_TOUCH_FEATURE_LENGTH
 TOTAL_FEATURE_LENGTH = PIXEL_FEATURE_LENGTH * NUMBER_OF_PIXEL_SAMPLES + DID_TOUCH_FEATURE_LENGTH + 1
-TOTAL_FEATURE_LENGTH -= NUMBER_OF_GVFS*PREDICTION_FEATURE_LENGTH*NUMBER_OF_ACTIONS
+# TOTAL_FEATURE_LENGTH -= NUMBER_OF_GVFS*PREDICTION_FEATURE_LENGTH*NUMBER_OF_ACTIONS
 # Channels
 RED_CHANNEL = 0
 GREEN_CHANNEL = 1
@@ -39,6 +39,7 @@ BLUE_CHANNEL = 2
 DEPTH_CHANNEL = 3
 
 WALL_THRESHOLD = 0.2  # If the prediction is greater than this, the pavlov agent will avert
+
 
 class Representation(object):
 
@@ -144,13 +145,13 @@ class Representation(object):
             phi.extend(pixel_rep)
 
             # if there are predictions in the representation, tile them in!
-            if obs['predictions']:
-                for prediction in obs['predictions']:
-                    prediction_rep = np.zeros(PREDICTION_FEATURE_LENGTH)
-                    indexes = tiles(NUM_PREDICTION_TILINGS, 16, [prediction])
-                    prediction_rep[indexes] = 1.0
-                    phi.extend(prediction_rep)
-
+        if obs['predictions'] is not None:
+            for prediction in obs['predictions']:
+                prediction_rep = np.zeros(PREDICTION_FEATURE_LENGTH)
+                indexes = tiles(NUM_PREDICTION_TILINGS, 16, [prediction])
+                prediction_rep[indexes] = 1.0
+                phi.extend(prediction_rep)
+        did_touch = obs['touchData']
         did_touch = obs['touchData']
         phi.append(float(did_touch))
         return np.array(phi)

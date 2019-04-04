@@ -12,6 +12,7 @@ from pysrc.prediction.network.off_policy_horde import HordeHolder, HordeLayer
 from pysrc.control.control_agents import RandomAgent
 from pysrc.function_approximation.StateRepresentation import Representation
 from pysrc.prediction.cumulants.cumulant import Cumulant
+import time
 
 if sys.version_info[0] == 2:
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
@@ -45,14 +46,14 @@ class MinecraftHordeHolder(HordeHolder):
             layers (list): a list which contains instances of HordeLayer.
             num_actions (int): the number of actions in the current domain.
         """
-        super(MinecraftHordeHolder).__init__(layers=layers,num_actions=num_actions)
+        super(MinecraftHordeHolder, self).__init__(layers=layers, num_actions=num_actions)
 
     def step(self, observations, policy=None, action=None, recurrance=False, skip=False, ude=False, remove_base=False, **vals):
         predictions = None
         for layer in self.layers:
             # Adds the most recent predictions to the observations; will be None if base layer.
             observations['predictions'] = predictions
-            layer.step(observations)
+            predictions =  layer.step(observations, policy, action)
 
 
 class Foreground:
@@ -73,7 +74,6 @@ class Foreground:
         if self.show_display:
             self.display = Display(self)
         self.gvfs = {}
-        self.configure_gvfs()
         self.state = None
         self.old_state = None
         self.network = self.configure_gvfs_net()
@@ -92,21 +92,21 @@ class Foreground:
         # =============================================================================================================
 
         number_of_active_features = 400
-        eligibility_decay = 0.9
+        eligibility_decay = np.array([0.9])
         discounts = np.array([0])
         function_approximation = Representation()
-        init_alpha = 1/function_approximation.get_num_active()
-        policies = [[0, 0, 0, 1] ]     # with probability 1, extend hand
-        cumulant = [MinecraftCumulantTouch()]    # todo: what index?
+        init_alpha = np.array([1./function_approximation.get_num_active()])
+        policies = [[0, 0, 0, 1]]     # with probability 1, extend hand
+        cumulant = [MinecraftCumulantTouch()]
 
         network = HordeLayer(
-            function_approximation,
-            number_of_actions,
-            init_alpha,
-            discounts,
-            cumulant,
-            policies,
-            eligibility_decay,
+            function_approx=function_approximation,
+            num_predictions=1,
+            step_sizes=init_alpha,
+            discounts=discounts,
+            cumulants=cumulant,
+            policies=policies,
+            traces_lambda=eligibility_decay,
             protected_range=0,
         )
         layers.append(network)  # add the new layer to the collection
@@ -115,20 +115,19 @@ class Foreground:
         # Layer 2 - Touch Left (TL) and Touch Right (TR)
         # =============================================================================================================
 
-        base_rep_dimension = NUM_IMAGE_TILINGS*NUMBER_OF_PIXEL_SAMPLES
-
+        base_rep_dimension = PIXEL_FEATURE_LENGTH * NUMBER_OF_PIXEL_SAMPLES + DID_TOUCH_FEATURE_LENGTH
         policies = [[0, 1, 0, 0], [0, 0, 1, 0]]     # turn left and turn right
-        cumulant = [MinecraftCumulantPrediction(0), MinecraftCumulantPrediction(1)]    # todo: what index?
+        cumulant = [MinecraftCumulantPrediction(0), MinecraftCumulantPrediction(0)]    # todo: what index?
         function_approximation = Representation(base_rep_dimension+1*PREDICTION_FEATURE_LENGTH)
-        init_alpha = 1 / function_approximation.get_num_active()
+        init_alpha = np.array(1. / function_approximation.get_num_active())
         network = HordeLayer(
-            function_approximation,
-            number_of_actions,
-            init_alpha,
-            discounts,
-            cumulant,
-            policies,
-            eligibility_decay,
+            function_approx=function_approximation,
+            num_predictions=2,
+            step_sizes=init_alpha,
+            discounts=discounts,
+            cumulants=cumulant,
+            policies=policies,
+            traces_lambda=eligibility_decay,
             protected_range=0
         )
         layers.append(network)
@@ -168,7 +167,7 @@ class Foreground:
 
         """
         # Create a voronoi image
-        try:
+        if self.state:
             frame = self.state['visionData']
             if self.show_display:
                 voronoi = voronoi_from_pixels(pixels=frame, dimensions=(WIDTH, HEIGHT),
@@ -200,8 +199,10 @@ class Foreground:
 
             # get the most recent predictions
             touch_prediction = self.network.layers[0].last_prediction
-            turn_left_and_touch_prediction = self.network.layers[1].last_prediction[0]
-            turn_right_and_touch_prediction = self.network.layers[1].last_prediction[1]
+            # turn_left_and_touch_prediction = self.network.layers[1].last_prediction[0]
+            turn_left_and_touch_prediction = 0
+            # turn_right_and_touch_prediction = self.network.layers[1].last_prediction[1]
+            turn_right_and_touch_prediction = 0
             # unimplemented, so zero...
             touch_behind_prediction = 0
             is_wall_adjacent_prediction = 0
@@ -241,21 +242,19 @@ class Foreground:
                                         wallLeftForwardPrediction=wall_left_forward_prediction,
                                         action=action
                                         )
-        except KeyError:                        # not sure if this is what we are supposed to be catching, but hey...
-            print("Error getting frame")
 
     def learn_from_behavior_policy_action(self):
         """Using the behaviour policy, selects an action. After selecting an action, updates the GVFs based on the
         action."""
         # todo: this is set as a variable in learn_from_action; we don't need to have two dependent calls...
-        action = self.agent.get_action()
+        action = self.agent.get_action(state_prime=None)    # state doesn't matter; randint
         self.action_count += 1
         # If we've done 100 steps; pretty print the progress.
         if self.action_count % 100 == 0:
             print("Step " + str(self.action_count) + " ... ")
         observation = self.grid_world.take_action(action)
         # Do the learning
-        self.network.step(observation)
+        self.network.step(observation, self.agent.get_policy(observation=None), action)
         # Update our display (for debugging and progress reporting)
         self.update_ui(action)
 
@@ -265,6 +264,7 @@ class Foreground:
         while self.action_count < self.steps_before_prompting_for_action:
             # Select and send action. Need to sleep to give time for simulator to respond
             self.learn_from_behavior_policy_action()
+            time.sleep(1)
         self.display.root.mainloop()
         print("Mission ended")
         # Mission has ended.
@@ -272,5 +272,5 @@ class Foreground:
 
 if __name__ == "__main__":
     # fg.read_gvf_weights()
-    fg = Foreground(show_display=True, steps_before_updating_display=1200, steps_before_prompting_for_action=12000)
+    fg = Foreground(show_display=True, steps_before_updating_display=0, steps_before_prompting_for_action=12000)
     fg.start()
