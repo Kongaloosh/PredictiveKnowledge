@@ -19,8 +19,8 @@ def update_rupee(beta_naught, tau, delta_e, h, e, delta, alpha, phi):
          """
     tau = (1 - beta_naught) * tau + beta_naught
     beta = beta_naught / tau
-    delta_e = (1 - beta) * delta_e + beta * e * delta
-    h += alpha * (delta * e - (np.inner(h, phi) * phi))
+    delta_e = (1 - beta) * delta_e + beta * e * delta.T
+    h += alpha * (delta.T * e - (np.inner(h, phi)[:, None] * phi))
     return np.sqrt(np.abs(np.inner(h, e))), tau, delta_e, h
 
 
@@ -36,11 +36,11 @@ def update_ude(beta, delta_average, delta_variance, delta):
         (ude, delta_average, delta_variance)
         """
     if delta_average is None:
-        delta_average = delta
+        delta_average = delta.T
         delta_variance = np.zeros(delta.shape)
     else:
-        err = delta - delta_average
-        delta_average += err * beta
+        err = delta.T - delta_average
+        delta_average = delta_average + (err * beta).T
         delta_variance = (1-beta) * (delta_variance + beta * err**2)
     return np.abs(delta_average / (np.sqrt(delta_variance) + 0.001))[:, 0], delta_average, delta_variance
 

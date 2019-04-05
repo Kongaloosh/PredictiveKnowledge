@@ -59,7 +59,7 @@ class HordeLayer(object):
         self.step_sizes = np.ones((num_predictions, self.function_approximation.dimensions)) * step_sizes
         self.bias_correction = np.zeros(self.weights.shape)
         self.eligibility_traces = np.zeros(self.weights.shape)
-        self.traces_lambda = traces_lambda[:, None]
+        self.traces_lambda = traces_lambda
         self.policies = policies
         self.step_size_bias_correction = 0.0001 # from AW's thesis; no idea how to set it well
 
@@ -238,7 +238,7 @@ class HordeLayer(object):
             # update the traces based on the new visitation
             self.eligibility_traces = accumulate(self.eligibility_traces, discounts, self.traces_lambda, phi_next, rho)
             # calculate the new cumulants
-            current_cumulants = np.array([cumulant.cumulant(observations) for cumulant in self.cumulants])[:, None]
+            current_cumulants = np.array([cumulant.cumulant(observations) for cumulant in self.cumulants])
             # get a vector of TD errors corresponding to the performance.
             td_error = calculate_temporal_difference_error(self.weights, current_cumulants, discounts, phi_next,
                                                            self.last_phi)
