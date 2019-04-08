@@ -43,7 +43,7 @@ class Foreground:
         self.show_display = showDisplay
         self.steps_before_prompting_for_action = stepsBeforePromptingForAction
         self.steps_before_updating_display = stepsBeforeUpdatingDisplay
-        self.grid_world = GridWorld('model/grids', initialX=1, initialY=1)
+        self.grid_world = GridWorld('model/grids', initial_x=1, initial_y=1)
         self.behavior_policy = BehaviorPolicy()
 
         if self.show_display:
@@ -465,7 +465,7 @@ class Foreground:
         self.old_state = self.state
         self.old_phi = self.phi
 
-        observation = self.grid_world.takeAction(self.action)
+        observation = self.grid_world.take_action(self.action)
         self.state = observation
 
         if self.old_state:
@@ -477,10 +477,8 @@ class Foreground:
         xPos = self.state['x']
         zPos = self.state['y']
 
-
         self.phi = self.state_representation.get_phi(previous_phi=self.old_phi, state=self.state,
                                                      previous_action=self.action, simple_phi=USE_SIMPLE_PHI)
-
         # Do the learning
         self.learn()
 

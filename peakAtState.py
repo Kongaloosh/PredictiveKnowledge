@@ -21,7 +21,7 @@ def isWallInFront(currentX, currentY, yaw,  gridWorld):
     # Facing east
     desiredX = desiredX + 1
 
-  grid = gridWorld.gridFor(desiredX, desiredY)
+  grid = gridWorld.grid_for(desiredX, desiredY)
   if grid == None:
     isBlock = True
 

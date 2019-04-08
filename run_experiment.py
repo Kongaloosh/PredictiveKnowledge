@@ -47,13 +47,15 @@ class MinecraftHordeHolder(HordeHolder):
             num_actions (int): the number of actions in the current domain.
         """
         super(MinecraftHordeHolder, self).__init__(layers=layers, num_actions=num_actions)
+        self.state = None
 
     def step(self, observations, policy=None, action=None, recurrance=False, skip=False, ude=False, remove_base=False, **vals):
         predictions = None
         for layer in self.layers:
             # Adds the most recent predictions to the observations; will be None if base layer.
             observations['predictions'] = predictions
-            predictions =  layer.step(observations, policy, action)
+            predictions = layer.step(observations, policy, action)
+        self.state = observations
 
 
 class Foreground:
@@ -171,7 +173,7 @@ class Foreground:
             frame = self.state['visionData']
             if self.show_display:
                 voronoi = voronoi_from_pixels(pixels=frame, dimensions=(WIDTH, HEIGHT),
-                                              pixelsOfInterest=self.state_representation.pointsOfInterest)
+                                              pixelsOfInterest=self.network.layers[0].function_approximation.pointsOfInterest)
             # cv2.imshow('My Image', voronoi)
             # cv2.waitKey(0)
 
@@ -198,11 +200,11 @@ class Foreground:
                                                      self.grid_world)
 
             # get the most recent predictions
-            touch_prediction = self.network.layers[0].last_prediction
-            # turn_left_and_touch_prediction = self.network.layers[1].last_prediction[0]
-            turn_left_and_touch_prediction = 0
-            # turn_right_and_touch_prediction = self.network.layers[1].last_prediction[1]
-            turn_right_and_touch_prediction = 0
+            touch_prediction = self.network.layers[0].last_prediction[0]
+            turn_left_and_touch_prediction = self.network.layers[1].last_prediction[0]
+            # turn_left_and_touch_prediction = 0
+            turn_right_and_touch_prediction = self.network.layers[1].last_prediction[1]
+            # turn_right_and_touch_prediction = 0
             # unimplemented, so zero...
             touch_behind_prediction = 0
             is_wall_adjacent_prediction = 0
@@ -255,6 +257,7 @@ class Foreground:
         observation = self.grid_world.take_action(action)
         # Do the learning
         self.network.step(observation, self.agent.get_policy(observation=None), action)
+        self.state = self.network.state
         # Update our display (for debugging and progress reporting)
         self.update_ui(action)
 
@@ -264,10 +267,10 @@ class Foreground:
         while self.action_count < self.steps_before_prompting_for_action:
             # Select and send action. Need to sleep to give time for simulator to respond
             self.learn_from_behavior_policy_action()
-            time.sleep(1)
         self.display.root.mainloop()
         print("Mission ended")
         # Mission has ended.
+        # re
 
 
 if __name__ == "__main__":
