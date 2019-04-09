@@ -15,12 +15,12 @@ def update_rupee(beta_naught, tau, delta_e, h, e, delta, alpha, phi):
          alpha: step-size which scales weight updates.
          phi: binary feature vector representing the current state.
      Returns:
-         (rupee, tau, delta_e, h): the current rupee and updated memory variables.
+         (rupee, tau, delta_e): the current rupee and updated memory variables.
          """
     tau = (1 - beta_naught) * tau + beta_naught
     beta = beta_naught / tau
     delta_e = (1 - beta) * delta_e + beta * e * delta.T
-    return np.sqrt(np.abs(np.sum(h * e, axis=1))), tau, delta_e, h
+    return np.sqrt(np.abs(np.sum(h * e, axis=1))), tau, delta_e
 
 
 def update_ude(beta, delta_average, delta_variance, delta):

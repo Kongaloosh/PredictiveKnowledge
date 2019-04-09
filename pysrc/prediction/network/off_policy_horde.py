@@ -249,12 +249,12 @@ class HordeLayer(object):
                                                   , self.eligibility_traces, self.last_phi)
 
             # maintain verifiers
-            self.rupee, self.tau, self.eligibility_avg, self.rupee_h_trace = \
+            self.rupee, self.tau, self.eligibility_avg= \
                 update_rupee(
                     beta_naught=self.rupee_beta,
                     tau=self.tau,
                     delta_e=self.eligibility_avg,
-                    h=self.rupee_h_trace,
+                    h=self.bias_correction,
                     e=self.eligibility_traces,
                     delta=td_error,
                     alpha=self.step_sizes,
