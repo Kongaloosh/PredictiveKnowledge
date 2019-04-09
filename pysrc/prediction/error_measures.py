@@ -20,8 +20,7 @@ def update_rupee(beta_naught, tau, delta_e, h, e, delta, alpha, phi):
     tau = (1 - beta_naught) * tau + beta_naught
     beta = beta_naught / tau
     delta_e = (1 - beta) * delta_e + beta * e * delta.T
-    h += alpha * (delta.T * e - (np.inner(h, phi)[:, None] * phi))
-    return np.sqrt(np.abs(np.inner(h, e))), tau, delta_e, h
+    return np.sqrt(np.abs(np.sum(h * e, axis=1))), tau, delta_e, h
 
 
 def update_ude(beta, delta_average, delta_variance, delta):
