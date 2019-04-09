@@ -53,7 +53,7 @@ def calculate_temporal_difference_error(weights, cumulant, gamma_next, phi_next,
         td_error: the temporal-difference error for the current observations.
     """
 
-    return cumulant + gamma_next * np.dot(weights, phi_next) - np.dot(weights, phi_next)
+    return cumulant + gamma_next.T * np.dot(weights, phi_next) - np.dot(weights, phi_next)
 
 
 def update_weights(td_error, traces, weights, gamma, lmbda, step_size, phi_next, h):

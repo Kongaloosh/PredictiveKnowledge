@@ -55,7 +55,6 @@ class Representation(object):
         self.dimensions = _dimensions + 1
         self.num_features = _dimensions + 1   # this is to account for the bias unit
         self.numPrototypes = self.num_features
-        self.g = np.zeros((self.dimensions, self.num_features))
         self.phi = None
 
         self.pointsOfInterest = []
