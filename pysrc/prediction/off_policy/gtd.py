@@ -38,7 +38,7 @@ def accumulate(traces, gamma, lmbda, phi, rho):
     Returns:
         traces: the eligibility traces to asign credit for current observations to previous states.
     """
-    return rho[:,None] * (traces * (gamma * lmbda) + phi.T)
+    return rho[:, None] * (traces * (gamma * lmbda) + phi.T)
 
 
 def calculate_temporal_difference_error(weights, cumulant, gamma_next, phi_next, phi):

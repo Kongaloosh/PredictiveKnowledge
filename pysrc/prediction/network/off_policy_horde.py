@@ -384,31 +384,31 @@ class HordeHolder(HordeLayer):
         return predictions
 
     def predict(self, phi):
-        return np.array([layer.predict for layer in self.layers])
+        return [layer.predict for layer in self.layers]
 
     def error(self):
-        return np.array([layer.error() for layer in self.layers])
+        return [layer.error() for layer in self.layers]
 
     def square_error(self):
-        return np.array([np.power(layer.error(),2) for layer in self.layers])
+        return [np.power(layer.error(),2) for layer in self.layers]
 
     def avg_error(self):
-        return np.array([layer.avg_error for layer in self.layers])
+        return [layer.avg_error for layer in self.layers]
 
     def get_cumulants(self):
-        return np.array([layer.cumulants for layer in self.layers])
+        return [layer.cumulants for layer in self.layers]
 
     def get_discounts(self):
-        return np.array([layer.discounts for layer in self.layers])
+        return [layer.discounts for layer in self.layers]
 
     def get_weights(self):
-        return np.array([layer.weights for layer in self.layers])
+        return [layer.weights.tolist() for layer in self.layers]
 
     def get_rupee(self):
-        return np.array([layer.rupee for layer in self.layers])
+        return [layer.rupee.tolist() for layer in self.layers]
 
     def get_ude(self):
-        return np.array([layer.ude for layer in self.layers])
+        return [layer.ude.tolist() for layer in self.layers]
 
     def get_step_sizes(self):
         return [layer.step_sizes for layer in self.layers]
