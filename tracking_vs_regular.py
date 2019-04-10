@@ -12,6 +12,7 @@ from pysrc.control.control_agents import RandomAgent
 from pysrc.function_approximation.StateRepresentation import Representation
 from pysrc.prediction.cumulants.cumulant import Cumulant
 from matplotlib import pyplot
+from pysrc.prediction.off_policy.gtd import *
 
 if sys.version_info[0] == 2:
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
@@ -34,6 +35,62 @@ class MinecraftCumulantPrediction(Cumulant):
     def cumulant(self, obs):
         return obs['predictions'][self.prediction_index]
 
+class MinecraftHordeLayer(HordeLayer):
+
+    def step(self, observations, policy, action, remove_base=False, terminal_step=False, **vals):
+        """Update the Network
+        Args:
+            observations (list): real-valued list of observations from the environment.
+            policy (list): list of length num_actions; the policy of the control policy for the given state.
+        Returns:
+            predictions (list): the predictions for each GVF given the observations and policy.
+        """
+        # get the next feature vector
+        phi_next = self.function_approximation.get_features(observations)
+        if type(self.last_phi) is np.ndarray:
+            discounts = np.array([discount.gamma(observations) for discount in self.discounts])
+
+            if terminal_step:
+                discounts = np.zeros(self.discounts.shape)
+            # calculate importance sampling
+            rho = (self.policies / policy)[:, action]
+            # update the traces based on the new visitation
+            self.eligibility_traces = accumulate(self.eligibility_traces, discounts, self.traces_lambda, phi_next, rho)
+            # calculate the new cumulants
+            current_cumulants = np.array([cumulant.cumulant(observations) for cumulant in self.cumulants])
+            # get a vector of TD errors corresponding to the performance.
+            td_error = calculate_temporal_difference_error(self.weights, current_cumulants, discounts, phi_next,
+                                                           self.last_phi)
+            # update the weights based on the caluculated TD error
+            self.weights = update_weights(td_error, self.eligibility_traces, self.weights, discounts,
+                                          self.traces_lambda, self.step_sizes, self.last_phi, self.bias_correction)
+            # update bias correction term
+            self.bias_correction = update_h_trace(self.bias_correction, td_error, self.step_size_bias_correction
+                                                  , self.eligibility_traces, self.last_phi)
+
+            # maintain verifiers
+            self.rupee, self.tau, self.eligibility_avg = \
+                update_rupee(
+                    beta_naught=self.rupee_beta,
+                    tau=self.tau,
+                    delta_e=self.eligibility_avg,
+                    h=self.bias_correction,
+                    e=self.eligibility_traces,
+                    delta=td_error,
+                    alpha=self.step_sizes,
+                    phi=self.last_phi
+                )
+            self.ude, self.delta_avg, self.delta_var = update_ude(
+                self.ude_beta,
+                self.delta_avg,
+                self.delta_var,
+                td_error
+            )
+            self.avg_error = self.avg_error * 0.9 + 0.1 * np.abs(td_error)
+
+        self.last_phi = phi_next
+        self.last_prediction = np.inner(self.weights, phi_next)
+        return self.last_prediction
 
 class MinecraftHordeHolder(HordeHolder):
     """The minecraft experiment setup is slightly different from what we're used to doing, so I'm extending the state
@@ -65,7 +122,7 @@ class MinecraftHordeHolder(HordeHolder):
         try:
             for i in range(len(rupee)):
                 self.rupee[i].append(rupee[i])
-                self.ude[i].append(ude)
+                self.ude[i].append(ude[i])
                 self.prediction[i].append(all_predictions[i])
         except TypeError:
             self.rupee = []
@@ -76,7 +133,7 @@ class MinecraftHordeHolder(HordeHolder):
                 self.ude.append([])
                 self.prediction.append([])
                 self.rupee[i].append(rupee[i])
-                self.ude[i].append(ude)
+                self.ude[i].append(ude[i])
                 self.prediction[i].append(all_predictions[i])
         self.state = observations
 
@@ -285,8 +342,39 @@ class Foreground:
         # Update our display (for debugging and progress reporting)
         self.update_ui(action)
 
+    def get_true_values(self):
+        true_values = []
+        in_front = peak.isWallInFront(self.state['x'], self.state['y'], self.state['yaw'], self.grid_world)
+
+        true_values.append([in_front])
+
+        on_left = peak.isWallOnLeft(self.state['x'], self.state['y'], self.state['yaw'], self.grid_world)
+        on_right = peak.isWallOnRight(self.state['x'], self.state['y'], self.state['yaw'], self.grid_world)
+
+        true_values.append([on_left, on_right])
+
+        is_behind = peak.isWallBehind(self.state['x'], self.state['y'], self.state['yaw'], self.grid_world)
+        wall_adjacent = peak.isWallAdjacent(self.state['x'], self.state['y'], self.state['yaw'], self.grid_world)
+        distance_to_adjacent = peak.distanceToAdjacent(self.state['x'], self.state['y'], self.state['yaw'],
+                                                       self.grid_world)
+        distance_left = peak.distanceLeftToAdjacent(self.state['x'], self.state['y'], self.state['yaw'],
+                                                    self.grid_world)
+        distance_right = peak.distanceRightToAdjacent(self.state['x'], self.state['y'], self.state['yaw'],
+                                                      self.grid_world)
+        distance_back = peak.distanceBehindToAdjacent(self.state['x'], self.state['y'], self.state['yaw'],
+                                                      self.grid_world)
+        wall_left_forward = peak.wallLeftForward(self.state['x'], self.state['y'], self.state['yaw'],
+                                                 self.grid_world)
+        return true_values
+
     def start(self):
         """Initializes the plotter and runs the experiment."""
+        print("Mission ended")
+        exp_rupee = []
+        exp_ude = []
+        exp_prediction = []
+        true_values = []
+
         for seed in [
             8995, 6553, 2514, 6629, 7381, 1590, 1588, 2585, 1083,  822,
             438, 3674, 8768, 8891, 6448, 5719, 5134, 8341, 5981,
@@ -297,16 +385,44 @@ class Foreground:
             self.network = self.configure_gvfs_net()    # reset network
             while self.action_count < self.steps_before_prompting_for_action:
                 self.learn_from_behavior_policy_action()
-            pyplot.plot(np.array(self.network.rupee[1]))
-            pyplot.show()
+                true_values_now = self.get_true_values()
+                try:
+                    for i in range(len(true_values_now)):
+                        true_values[i].append(true_values_now[i])
+                except IndexError:
+                    for i in range(len(true_values_now)):
+                        true_values.append([])
+                        true_values[i].append(true_values_now[i])
+
+            # pyplot.plot(np.array(self.network.rupee[0]))
             self.action_count = 0
             # dump network rupee and error
 
             # dump the weights of the predictions & serialize function approximators
-            print("Mission ended")
+            print(true_values)
+            try:
+                for i in range(len(self.network.rupee)):
+                    exp_rupee[i].append(self.network.rupee[i])
+                    exp_ude[i].append(self.network.ude[i])
+                    exp_prediction[i].append(self.network.prediction[i])
+            except IndexError:
+                for i in range(len(self.network.rupee)):
+                    exp_rupee.append([])
+                    exp_ude.append([])
+                    exp_prediction.append([])
+                    exp_rupee[i].append(self.network.rupee[i])
+                    exp_ude[i].append(self.network.ude[i])
+                    exp_prediction[i].append(self.network.prediction[i])
 
+        for i in range(len(exp_rupee)):
+            exp_prediction[i] = np.average(exp_prediction[i], axis=0)
+            exp_ude[i] = np.average(exp_ude[i], axis=0)
+            exp_rupee[i] = np.average(exp_rupee[i], axis=0)
+        pyplot.plot(exp_rupee[0])
+        pyplot.plot(exp_rupee[1])
+        pyplot.show()
 
 if __name__ == "__main__":
     # fg.read_gvf_weights()
-    fg = Foreground(show_display=False, steps_before_updating_display=10, steps_before_prompting_for_action=10)
+    fg = Foreground(show_display=False, steps_before_updating_display=-1, steps_before_prompting_for_action=1 000)
     fg.start()
