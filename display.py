@@ -78,7 +78,9 @@ class Display(object):
         self.tPlot = self.tFigure.add_subplot(111)
         self.tPlot.set_ylim(-0.05, 1.05)
         self.tPredictions = [0.0] * 50
+        self.t_track_predictions = [0.0] * 50
         self.tPredictionLine, = self.tPlot.plot(timeStepValues, self.tPredictions, 'g', label="T(predict)")
+        self.t_track_prediction_line, = self.tPlot.plot(timeStepValues, self.t_track_predictions, 'r', label="T(track)")
         self.tActualValues = [0.0] * 50
         self.tActualLine, = self.tPlot.plot(timeStepValues, self.tActualValues, 'b', label="T(actual)")
 
@@ -93,7 +95,9 @@ class Display(object):
         self.tlPlot = self.tlFigure.add_subplot(111)
         self.tlPlot.set_ylim(-0.05, 1.05)
         self.tlPredictions = [0.0] * 50
+        self.tl_track_predictions = [0.0] * 50
         self.tlPredictionLine, = self.tlPlot.plot(timeStepValues, self.tlPredictions, 'g', label="TL(predict)")
+        self.tl_track_predictions_line, = self.tlPlot.plot(timeStepValues, self.tl_track_predictions, 'r', label="TL(track)")
         self.tlActualValues = [0.0] * 50
         self.tlActualLine, = self.tlPlot.plot(timeStepValues, self.tlActualValues, 'b', label="TL(actual)")
 
@@ -107,7 +111,9 @@ class Display(object):
         self.trPlot = self.trFigure.add_subplot(111)
         self.trPlot.set_ylim(-0.05, 1.05)
         self.trPredictions = [0.0] * 50
+        self.tr_track_predictions = [0.0] * 50
         self.trPredictionLine, = self.trPlot.plot(timeStepValues, self.trPredictions, 'g', label="TR(predict)")
+        self.tr_track_prediction_line, = self.trPlot.plot(timeStepValues, self.tr_track_predictions, 'r', label="TR(track)")
         self.trActualValues = [0.0] * 50
         self.trActualLine, = self.trPlot.plot(timeStepValues, self.trActualValues, 'b', label="TR(actual)")
 
@@ -285,7 +291,13 @@ class Display(object):
                wallAdjacent,
                wallLeftForward,
                wallLeftForwardPrediction,
-               action):
+               action,
+               track_touch_prediction,
+               track_turn_left_and_touch_prediction,
+               track_turn_right_and_touch_prediction,
+               ):
+
+        print(turnLeftAndTouchPrediction == turnRightAndTouchPrediction, turnLeftAndTouchPrediction, turnRightAndTouchPrediction)
 
         # Status with all predictions
         self.status.set("T: " + str(round(currentTouchPrediction, 2)) + "(" + str(wallInFront) + "), " + \
@@ -300,7 +312,7 @@ class Display(object):
                         "WLF: " + str(round(wallLeftForwardPrediction, 2)) + "(" + str(wallLeftForward) + "), " + \
                         "")
         # Update Steps
-        self.numberOfSteps.set("Step: " + str(numberOfSteps) + " Action: " + str(action))
+        self.numberOfSteps.set("Step: " + str(numberOfSteps) + " Action: " + ["forward", "left", "right", "hand"][action])
 
         # Update did touch
         if didTouch:
@@ -337,6 +349,8 @@ class Display(object):
         # T
         self.tPredictions.pop(0)
         self.tPredictions.append(currentTouchPrediction)
+        self.t_track_predictions.pop(0)
+        self.t_track_predictions .append(track_touch_prediction)
         self.tActualValues.pop(0)
         if (wallInFront):
             touchActual = 1.0
@@ -344,25 +358,34 @@ class Display(object):
             touchActual = 0.0
         self.tActualValues.append(touchActual)
         self.tPredictionLine.set_ydata(self.tPredictions)
+        self.t_track_prediction_line.set_ydata(self.t_track_predictions)
         self.tActualLine.set_ydata(self.tActualValues)
         self.tCanvas.draw()
 
         # TL
         self.tlPredictions.pop(0)
         self.tlPredictions.append(turnLeftAndTouchPrediction)
+
+        self.tl_track_predictions.pop(0)
+        self.tl_track_predictions.append(track_turn_left_and_touch_prediction)
+
         self.tlActualValues.pop(0)
         if (wallOnLeft):
             touchActual = 1.0
         else:
             touchActual = 0.0
+
         self.tlActualValues.append(touchActual)
         self.tlPredictionLine.set_ydata(self.tlPredictions)
+        self.tl_track_predictions_line.set_ydata(self.tl_track_predictions)
         self.tlActualLine.set_ydata(self.tlActualValues)
         self.tlCanvas.draw()
 
         # TR
         self.trPredictions.pop(0)
         self.trPredictions.append(turnRightAndTouchPrediction)
+        self.tr_track_predictions.pop(0)
+        self.tr_track_predictions.append(track_turn_right_and_touch_prediction)
         self.trActualValues.pop(0)
         if (wallOnRight):
             touchActual = 1.0
@@ -370,6 +393,7 @@ class Display(object):
             touchActual = 0.0
         self.trActualValues.append(touchActual)
         self.trPredictionLine.set_ydata(self.trPredictions)
+        self.tr_track_prediction_line.set_ydata(self.tr_track_predictions)
         self.trActualLine.set_ydata(self.trActualValues)
         self.trCanvas.draw()
 

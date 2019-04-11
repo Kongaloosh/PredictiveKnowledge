@@ -40,7 +40,6 @@ DEPTH_CHANNEL = 3
 
 WALL_THRESHOLD = 0.2  # If the prediction is greater than this, the pavlov agent will avert
 
-
 class Representation(object):
 
     def __init__(self,
@@ -67,7 +66,7 @@ class Representation(object):
             self.pointsOfInterest.append(point)
 
     def get_num_active(self):
-        return self.num_features
+        return 405
 
     def save_points_of_interest(self, file_name):
         """Saves the subsampled pixel locations to a file.
@@ -151,8 +150,21 @@ class Representation(object):
                 prediction_rep[indexes] = 1.0
                 phi.extend(prediction_rep)
         did_touch = obs['touchData']
-        did_touch = obs['touchData']
         phi.append(float(did_touch))
         return np.array(phi)
 
+
+class TrackingRepresentation(Representation):
+
+    def __init__(self, **args):
+        self.dimensions = PIXEL_FEATURE_LENGTH * NUMBER_OF_PIXEL_SAMPLES + DID_TOUCH_FEATURE_LENGTH + 1
+        self.num_features = self.dimensions
+        self.phi = np.zeros(self.num_features)
+        self.phi[np.random.choice(range(self.num_features), size=405)] = 1
+
+    def get_num_active(self):
+        return 405
+
+    def get_features(self, obs):
+        return self.phi
 

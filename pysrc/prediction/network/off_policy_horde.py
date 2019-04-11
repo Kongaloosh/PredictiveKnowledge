@@ -234,9 +234,9 @@ class HordeLayer(object):
             if terminal_step:
                 discounts = np.zeros(self.discounts.shape)
             # calculate importance sampling
-            rho = (self.policies/policy)[:,action]
+            rho = (self.policies/policy)[:, action]
             # update the traces based on the new visitation
-            self.eligibility_traces = accumulate(self.eligibility_traces, discounts, self.traces_lambda, phi_next, rho)
+            self.eligibility_traces = accumulate(self.eligibility_traces, discounts, self.traces_lambda, self.last_phi, rho)
             # calculate the new cumulants
             current_cumulants = np.array([cumulant.cumulant(observations) for cumulant in self.cumulants])
             # get a vector of TD errors corresponding to the performance.
