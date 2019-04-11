@@ -32,6 +32,7 @@ class GridWorld:
         return str(x) + ',' + str(y)
 
     def take_action(self, action):
+        # actions = "forward", "turn_left", "turn_right", "extend_hand"
 
         # Set the new orientation
         if action > 3:
@@ -39,11 +40,13 @@ class GridWorld:
             return
 
         did_touch = False
-        if action == 1:
+        if action == 1:     # turn left
             self.current_yaw = (self.current_yaw - 90) % 360
-        elif action == 2:
+
+        elif action == 2:   # turn right
             self.current_yaw = (self.current_yaw + 90) % 360
-        elif action == 3:
+
+        elif action == 3:   # extend hand
             desired_key = ''
             if self.current_yaw == 0:
                 desired_key = self.key_name_for(self.current_x, self.current_y + 1)
@@ -55,7 +58,7 @@ class GridWorld:
                 desired_key = self.key_name_for(self.current_x + 1, self.current_y)
             if desired_key not in self.grids:
                 did_touch = True
-        elif action == 4:
+        elif action == 0:   # forward
             if self.current_yaw == 0:
                 desired_key = self.key_name_for(self.current_x, self.current_y + 1)
                 if desired_key in self.grids:
