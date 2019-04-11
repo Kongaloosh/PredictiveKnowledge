@@ -238,16 +238,16 @@ class Display(object):
         self.reset()
 
     def onRightButton(self):
-        self.foreground.learn_from_action('turn_right')
+        self.foreground.learn_from_action(2)
 
     def onLeftButton(self):
-        self.foreground.learn_from_action('turn_left')
+        self.foreground.learn_from_action(1)
 
     def onForewardButton(self):
-        self.foreground.learn_from_action('forward')
+        self.foreground.learn_from_action(0)
 
     def onExtendHandButton(self):
-        self.foreground.learn_from_action('extend_hand')
+        self.foreground.learn_from_action(3)
 
     def onTakeStepsButton(self):
         steps = self.stepLengthInput.get()

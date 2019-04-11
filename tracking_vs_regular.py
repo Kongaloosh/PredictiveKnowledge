@@ -428,11 +428,7 @@ class Foreground:
                                         track_turn_right_and_touch_prediction=track_turn_right_and_touch_prediction
                                         )
 
-    def learn_from_behavior_policy_action(self):
-        """Using the behaviour policy, selects an action. After selecting an action, updates the GVFs based on the
-        action."""
-        # todo: this is set as a variable in learn_from_action; we don't need to have two dependent calls...
-        action = self.agent.get_action(state_prime=None)    # state doesn't matter; randint
+    def learn_from_action(self, action):
         self.action_count += 1
         # If we've done 100 steps; pretty print the progress.
         if self.action_count % 100 == 0:
@@ -444,6 +440,14 @@ class Foreground:
         self.state = self.network.state
         # Update our display (for debugging and progress reporting)
         self.update_ui(action)
+
+    def learn_from_behavior_policy_action(self):
+        """Using the behaviour policy, selects an action. After selecting an action, updates the GVFs based on the
+        action."""
+        # todo: this is set as a variable in learn_from_action; we don't need to have two dependent calls...
+        action = self.agent.get_action(state_prime=None)    # state doesn't matter; randint
+        self.learn_from_action(action)
+
 
     def get_true_values(self):
         true_values = []
@@ -525,8 +529,20 @@ class Foreground:
         pyplot.plot(exp_rupee[1])
         pyplot.show()
 
+    def start_controlling(self):
+        """Initializes the plotter and runs the experiment."""
+        # Loop until mission ends:
+        while self.action_count < self.steps_before_prompting_for_action:
+            # Select and send action. Need to sleep to give time for simulator to respond
+            self.learn_from_behavior_policy_action()
+        self.display.root.mainloop()
+        print("Mission ended")
+        # Mission has ended.
+        # re
 
 if __name__ == "__main__":
     # fg.read_gvf_weights()
-    fg = Foreground(show_display=True, steps_before_updating_display=0, steps_before_prompting_for_action=1000000)
+    fg = Foreground(show_display=True, steps_before_updating_display=0, steps_before_prompting_for_action=50)
+
     fg.start()
+    #fg.start_controlling()
