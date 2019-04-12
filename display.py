@@ -51,6 +51,7 @@ class Display(object):
         self.rightButton = Button(self.buttonFrame, text="Right", command=self.onRightButton)
         self.forwardButton = Button(self.buttonFrame, text="Forward", command=self.onForewardButton)
         self.extendButton = Button(self.buttonFrame, text="Extend Hand", command=self.onExtendHandButton)
+        self.noActionButton = Button(self.buttonFrame, text="No op", command=self.onNoActionButton)
         self.stepLengthInput = Entry(self.buttonFrame)
         self.stepLengthInput.insert(0, "Number of steps ...")
         self.stepLengthInput.insert(0, "Number of steps ...")
@@ -62,6 +63,7 @@ class Display(object):
         self.rightButton.pack(side="top")
         self.forwardButton.pack(side="top")
         self.extendButton.pack(side="top")
+        self.noActionButton.pack(side="top")
         self.stepLengthInput.pack(side="top")
         self.takeStepsButton.pack(side="top")
 
@@ -249,6 +251,9 @@ class Display(object):
     def onExtendHandButton(self):
         self.foreground.learn_from_action(3)
 
+    def onNoActionButton(self):
+        self.foreground.learn_from_action(4)
+
     def onTakeStepsButton(self):
         steps = self.stepLengthInput.get()
         if str.isdigit(steps) and int(steps) > 0:
@@ -312,7 +317,7 @@ class Display(object):
                         "WLF: " + str(round(wallLeftForwardPrediction, 2)) + "(" + str(wallLeftForward) + "), " + \
                         "")
         # Update Steps
-        self.numberOfSteps.set("Step: " + str(numberOfSteps) + " Action: " + ["forward", "left", "right", "hand"][action])
+        self.numberOfSteps.set("Step: " + str(numberOfSteps) + " Action: " + ["forward", "left", "right", "hand", "no op"][action])
 
         # Update did touch
         if didTouch:

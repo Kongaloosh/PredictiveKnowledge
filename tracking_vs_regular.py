@@ -187,7 +187,7 @@ class Foreground:
         self.steps_before_prompting_for_action = steps_before_prompting_for_action
         self.steps_before_updating_display = steps_before_updating_display
         self.grid_world = GridWorld('model/grids', initial_x=1, initial_y=1)
-        self.agent = RandomAgent(action_space=4, observation_space=0)
+        self.agent = RandomAgent(action_space=5, observation_space=0)
         if self.show_display:
             self.display = Display(self)
         self.gvfs = {}
@@ -214,7 +214,7 @@ class Foreground:
         discounts = np.array([0])
         function_approximation = Representation()
         init_alpha = np.array([0.3 /function_approximation.get_num_active()])
-        policies = [[0, 0, 0, 1]]     # with probability 1, extend hand
+        policies = [[0, 0, 0, 1, 0]]     # with probability 1, extend hand
         cumulant = [MinecraftCumulantTouch()]
 
         network = HordeLayer(
@@ -234,7 +234,7 @@ class Foreground:
         # =============================================================================================================
 
         base_rep_dimension = PIXEL_FEATURE_LENGTH * NUMBER_OF_PIXEL_SAMPLES + DID_TOUCH_FEATURE_LENGTH
-        policies = [[0, 1, 0, 0], [0, 0, 1, 0]]     # turn left and turn right
+        policies = [[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]]     # turn left and turn right
         discounts = np.array([0, 0])
         cumulant = [MinecraftCumulantPrediction(0), MinecraftCumulantPrediction(0)]    # todo: what index?
         function_approximation = Representation(base_rep_dimension+1*PREDICTION_FEATURE_LENGTH)
@@ -296,7 +296,7 @@ class Foreground:
         discounts = np.array([0])
         function_approximation = TrackingRepresentation()
         init_alpha = np.array([0.2 / function_approximation.get_num_active()])
-        policies = [[0, 0, 0, 1]]  # with probability 1, extend hand
+        policies = [[0, 0, 0, 1, 0]]  # with probability 1, extend hand
         cumulant = [MinecraftCumulantTouch()]
 
         network = HordeLayer(
@@ -316,7 +316,7 @@ class Foreground:
         # =============================================================================================================
 
         base_rep_dimension = PIXEL_FEATURE_LENGTH * NUMBER_OF_PIXEL_SAMPLES + DID_TOUCH_FEATURE_LENGTH
-        policies = [[0, 1, 0, 0], [0, 0, 1, 0]]  # turn left and turn right
+        policies = [[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]]  # turn left and turn right
         discounts = np.array([0, 0])
         cumulant = [MinecraftCumulantPrediction(0), MinecraftCumulantPrediction(0)]
         function_approximation = Representation(base_rep_dimension + 1 * PREDICTION_FEATURE_LENGTH)
@@ -544,5 +544,5 @@ if __name__ == "__main__":
     # fg.read_gvf_weights()
     fg = Foreground(show_display=True, steps_before_updating_display=0, steps_before_prompting_for_action=50)
 
-    fg.start()
-    #fg.start_controlling()
+    #fg.start()
+    fg.start_controlling()

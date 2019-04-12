@@ -35,7 +35,7 @@ class GridWorld:
         # actions = "forward", "turn_left", "turn_right", "extend_hand"
 
         # Set the new orientation
-        if action > 3:
+        if action > 4:
             print("Error. specified action not in action set")
             return
 
@@ -79,6 +79,8 @@ class GridWorld:
                 if desired_key in self.grids:
                     # move east
                     self.current_x = self.current_x + 1
+        elif action == 4: #No op action
+            pass
 
         current_grid_key = self.key_name_for(self.current_x, self.current_y)
 
