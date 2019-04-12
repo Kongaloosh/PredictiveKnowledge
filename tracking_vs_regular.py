@@ -544,5 +544,5 @@ if __name__ == "__main__":
     # fg.read_gvf_weights()
     fg = Foreground(show_display=True, steps_before_updating_display=0, steps_before_prompting_for_action=50)
 
-    #fg.start()
-    fg.start_controlling()
+    fg.start()
+    #fg.start_controlling()
