@@ -67,7 +67,6 @@ def update_weights(td_error, traces, weights, gamma, lmbda, step_size, phi_next,
     Returns:
         weights: updated weights correcting for current TD error.
     """
-    print(np.sum(traces * h, axis=1)[:, None])
     return weights + step_size * (td_error.T * traces - gamma * (1 - lmbda) * np.sum(traces * h, axis=1)[:, None] * phi_next)
 
 

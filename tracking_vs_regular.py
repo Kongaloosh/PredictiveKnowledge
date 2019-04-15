@@ -13,6 +13,7 @@ from pysrc.function_approximation.StateRepresentation import Representation, Tra
 from pysrc.prediction.cumulants.cumulant import Cumulant
 from matplotlib import pyplot
 from pysrc.prediction.off_policy.gtd import *
+from os import system
 
 if sys.version_info[0] == 2:
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
@@ -295,7 +296,7 @@ class Foreground:
         eligibility_decay = np.array([0.9])
         discounts = np.array([0])
         function_approximation = TrackingRepresentation()
-        init_alpha = np.array([0.2 / function_approximation.get_num_active()])
+        init_alpha = np.array([0.3 / function_approximation.get_num_active()])
         policies = [[0, 0, 0, 1]]  # with probability 1, extend hand
         cumulant = [MinecraftCumulantTouch()]
 
@@ -473,15 +474,23 @@ class Foreground:
     def start(self):
         """Initializes the plotter and runs the experiment."""
         print("Mission ended")
+
+        track_rupee = []
+        track_ude = []
+        track_prediction = []
+
         exp_rupee = []
         exp_ude = []
         exp_prediction = []
+
         true_values = []
 
         for seed in [
-            8995, 6553, 2514, 6629, 7381, 1590, 1588, 2585, 1083,  822,
-            438, 3674, 8768, 8891, 6448, 5719, 5134, 8341, 5981,
-            3623, 6994, 1653, 5417, 6542, 4868, 9414, 6632, 1852, 1788, 3348
+            # 8995, 6553, 2514, 6629, 7381, 1590, 1588, 2585, 1083,  822,
+            # 438, 3674, 8768, 8891, 6448, 5719, 5134, 8341, 5981,
+            # 3623, 6994, 1653,
+            5417, 6542,
+            # 4868, 9414, 6632, 1852, 1788, 3348
         ]:
             random.seed(seed)
             np.random.seed(seed)
@@ -497,8 +506,6 @@ class Foreground:
                         true_values.append([])
                         true_values[i].append(true_values_now[i])
 
-            self.network = self.configure_gvfs_net()  # reset network
-            self.tracking_network = self.configure_tracking_gvfs()
             # pyplot.plot(np.array(self.network.rupee[0]))
             self.action_count = 0
             # dump network rupee and error
@@ -508,25 +515,59 @@ class Foreground:
                     exp_rupee[i].append(self.network.rupee[i])
                     exp_ude[i].append(self.network.ude[i])
                     exp_prediction[i].append(self.network.prediction[i])
+
             except IndexError:
                 for i in range(len(self.network.rupee)):
                     exp_rupee.append([])
                     exp_ude.append([])
                     exp_prediction.append([])
+
+                    track_rupee.append([])
+                    track_ude.append([])
+                    track_prediction.append([])
+
                     exp_rupee[i].append(self.network.rupee[i])
                     exp_ude[i].append(self.network.ude[i])
                     exp_prediction[i].append(self.network.prediction[i])
+
+                    track_rupee[i].append(self.tracking_network.rupee[i])
+                    track_ude[i].append(self.tracking_network.ude[i])
+                    track_prediction[i].append(self.tracking_network.prediction[i])
+
+            self.network = self.configure_gvfs_net()  # reset network
+            self.tracking_network = self.configure_tracking_gvfs()
+        with open('results/experiment_results.pkl', "wb") as f:
+            pickle.dump(
+                {
+                    'predictive_rupee': exp_rupee,
+                    'predictive_ude': exp_ude,
+                    'predictive_predictions' : exp_prediction,
+                    'tracking_rupee': track_rupee,
+                    'tracking_ude' : track_ude,
+                    'tracking_predictions' : track_prediction,
+                    'environment_values' : true_values,
+                },
+                f
+            )
 
         for i in range(len(exp_rupee)):
             exp_prediction[i] = np.average(exp_prediction[i], axis=0)
             exp_ude[i] = np.average(exp_ude[i], axis=0)
             exp_rupee[i] = np.average(exp_rupee[i], axis=0)
-        pyplot.plot(exp_rupee[0])
-        pyplot.plot(exp_rupee[1])
-        pyplot.show()
+            track_prediction[i] = np.average(track_prediction[i], axis=0)
+            track_ude[i] = np.average(track_ude[i], axis=0)
+            track_rupee[i] = np.average(track_rupee[i], axis=0)
+        system('say your experiment is finished')
+        print("plotting")
+        for i in [0,1]:
+            pyplot.plot(exp_rupee[i], label="predictor")
+            pyplot.plot(track_rupee[i], alpha=0.2, label="tracker")
+            pyplot.legend()
+            pyplot.show()
+
 
 
 if __name__ == "__main__":
     # fg.read_gvf_weights()
-    fg = Foreground(show_display=True, steps_before_updating_display=0, steps_before_prompting_for_action=1000000)
+    fg = Foreground(show_display=False, steps_before_updating_display=1000, steps_before_prompting_for_action=25000)
     fg.start()
