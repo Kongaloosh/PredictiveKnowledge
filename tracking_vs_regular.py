@@ -298,7 +298,7 @@ class Foreground:
 
         function_approximation = Bias()
         init_alpha = np.array([0.3 / function_approximation.get_num_active()])
-        policies = [[0, 0, 0, 1]]  # with probability 1, extend hand
+        policies = [[0, 0, 0, 1, 0]]  # with probability 1, extend hand
         cumulant = [MinecraftCumulantTouch()]
 
         network = HordeLayer(

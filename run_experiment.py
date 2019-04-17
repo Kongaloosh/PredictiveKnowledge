@@ -98,7 +98,7 @@ class Foreground:
         discounts = np.array([0])
         function_approximation = Representation()
         init_alpha = np.array([1./function_approximation.get_num_active()])
-        policies = [[0, 0, 0, 1]]     # with probability 1, extend hand
+        policies = [[0, 0, 0, 1, 0]]     # with probability 1, extend hand
         cumulant = [MinecraftCumulantTouch()]
 
         network = HordeLayer(
@@ -118,7 +118,7 @@ class Foreground:
         # =============================================================================================================
 
         base_rep_dimension = PIXEL_FEATURE_LENGTH * NUMBER_OF_PIXEL_SAMPLES + DID_TOUCH_FEATURE_LENGTH
-        policies = [[0, 1, 0, 0], [0, 0, 1, 0]]     # turn left and turn right
+        policies = [[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]]     # turn left and turn right
         cumulant = [MinecraftCumulantPrediction(0), MinecraftCumulantPrediction(0)]    # todo: what index?
         function_approximation = Representation(base_rep_dimension+1*PREDICTION_FEATURE_LENGTH)
         init_alpha = np.array(1. / function_approximation.get_num_active())
