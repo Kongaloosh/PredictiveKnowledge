@@ -295,7 +295,7 @@ class Foreground:
         number_of_active_features = 400
         eligibility_decay = np.array([0.9])
         discounts = np.array([0])
-        function_approximation = TrackingRepresentation()
+        function_approximation = Bias()
         init_alpha = np.array([0.3 / function_approximation.get_num_active()])
         policies = [[0, 0, 0, 1]]  # with probability 1, extend hand
         cumulant = [MinecraftCumulantTouch()]
@@ -486,11 +486,10 @@ class Foreground:
         true_values = []
 
         for seed in [
-            # 8995, 6553, 2514, 6629, 7381, 1590, 1588, 2585, 1083,  822,
-            # 438, 3674, 8768, 8891, 6448, 5719, 5134, 8341, 5981,
-            # 3623, 6994, 1653,
-            5417, 6542,
-            # 4868, 9414, 6632, 1852, 1788, 3348
+            8995, 6553, 2514, 6629, 7381, 1590, 1588, 2585, 1083,  822,
+            438, 3674, 8768, 8891, 6448, 5719, 5134, 8341, 5981,
+            3623, 6994, 1653, 5417, 6542,
+            4868, 9414, 6632, 1852, 1788, 3348
         ]:
             random.seed(seed)
             np.random.seed(seed)
@@ -557,6 +556,7 @@ class Foreground:
             track_prediction[i] = np.average(track_prediction[i], axis=0)
             track_ude[i] = np.average(track_ude[i], axis=0)
             track_rupee[i] = np.average(track_rupee[i], axis=0)
+
         system('say your experiment is finished')
         print("plotting")
         for i in [0,1]:

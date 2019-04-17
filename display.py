@@ -297,7 +297,6 @@ class Display(object):
                track_turn_right_and_touch_prediction,
                ):
 
-        print(turnLeftAndTouchPrediction == turnRightAndTouchPrediction, turnLeftAndTouchPrediction, turnRightAndTouchPrediction)
 
         # Status with all predictions
         self.status.set("T: " + str(round(currentTouchPrediction, 2)) + "(" + str(wallInFront) + "), " + \
