@@ -47,7 +47,7 @@ class RandomAgent(Agent):
 
     @staticmethod
     def __str__():
-        return "RandomAgent"
+        return  "RandomAgent"
 
     def terminal_step(self, reward):
         pass

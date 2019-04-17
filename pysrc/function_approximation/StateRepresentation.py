@@ -40,6 +40,8 @@ DEPTH_CHANNEL = 3
 
 WALL_THRESHOLD = 0.2  # If the prediction is greater than this, the pavlov agent will avert
 
+
+
 class Representation(object):
 
     def __init__(self,
@@ -167,4 +169,17 @@ class TrackingRepresentation(Representation):
 
     def get_features(self, obs):
         return self.phi
+
+
+class Bias(Representation):
+
+    def __init__(self, **args):
+        self.dimensions = 1
+        self.num_features = 1
+
+    def get_num_active(self):
+        return 1
+
+    def get_features(self, obs):
+        return np.array([1])
 

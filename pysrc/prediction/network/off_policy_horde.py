@@ -37,6 +37,8 @@ class HordeLayer(object):
             remove_base: flag to remove the base observations from the construction of state.
             use_step_size: flag to determine if adaptive step-sizes should be used.
         """
+        self.td_error = 0
+
         self.use_step_sizes = use_step_size
         self.function_approximation = function_approx
         self.last_prediction = np.zeros(num_predictions)
@@ -242,6 +244,7 @@ class HordeLayer(object):
             # get a vector of TD errors corresponding to the performance.
             td_error = calculate_temporal_difference_error(self.weights, current_cumulants, discounts, phi_next,
                                                            self.last_phi)
+            self.td_error = td_error
             # update the weights based on the caluculated TD error
             self.weights = update_weights(td_error, self.eligibility_traces, self.weights, discounts, self.traces_lambda, self.step_sizes, self.last_phi, self.bias_correction)
             # update bias correction term
