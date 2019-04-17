@@ -188,7 +188,7 @@ class Foreground:
         self.steps_before_prompting_for_action = steps_before_prompting_for_action
         self.steps_before_updating_display = steps_before_updating_display
         self.grid_world = GridWorld('model/grids', initial_x=1, initial_y=1)
-        self.agent = RandomAgent(action_space=4, observation_space=0)
+        self.agent = RandomAgent(action_space=5, observation_space=0)
         if self.show_display:
             self.display = Display(self)
         self.gvfs = {}
@@ -215,7 +215,7 @@ class Foreground:
         discounts = np.array([0])
         function_approximation = Representation()
         init_alpha = np.array([0.3 /function_approximation.get_num_active()])
-        policies = [[0, 0, 0, 1]]     # with probability 1, extend hand
+        policies = [[0, 0, 0, 1, 0]]     # with probability 1, extend hand
         cumulant = [MinecraftCumulantTouch()]
 
         network = HordeLayer(
@@ -235,7 +235,7 @@ class Foreground:
         # =============================================================================================================
 
         base_rep_dimension = PIXEL_FEATURE_LENGTH * NUMBER_OF_PIXEL_SAMPLES + DID_TOUCH_FEATURE_LENGTH
-        policies = [[0, 1, 0, 0], [0, 0, 1, 0]]     # turn left and turn right
+        policies = [[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]]     # turn left and turn right
         discounts = np.array([0, 0])
         cumulant = [MinecraftCumulantPrediction(0), MinecraftCumulantPrediction(0)]    # todo: what index?
         function_approximation = Representation(base_rep_dimension+1*PREDICTION_FEATURE_LENGTH)
@@ -295,6 +295,7 @@ class Foreground:
         number_of_active_features = 400
         eligibility_decay = np.array([0.9])
         discounts = np.array([0])
+
         function_approximation = Bias()
         init_alpha = np.array([0.3 / function_approximation.get_num_active()])
         policies = [[0, 0, 0, 1]]  # with probability 1, extend hand
@@ -317,7 +318,7 @@ class Foreground:
         # =============================================================================================================
 
         base_rep_dimension = PIXEL_FEATURE_LENGTH * NUMBER_OF_PIXEL_SAMPLES + DID_TOUCH_FEATURE_LENGTH
-        policies = [[0, 1, 0, 0], [0, 0, 1, 0]]  # turn left and turn right
+        policies = [[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]]  # turn left and turn right
         discounts = np.array([0, 0])
         cumulant = [MinecraftCumulantPrediction(0), MinecraftCumulantPrediction(0)]
         function_approximation = Representation(base_rep_dimension + 1 * PREDICTION_FEATURE_LENGTH)
@@ -429,11 +430,7 @@ class Foreground:
                                         track_turn_right_and_touch_prediction=track_turn_right_and_touch_prediction
                                         )
 
-    def learn_from_behavior_policy_action(self):
-        """Using the behaviour policy, selects an action. After selecting an action, updates the GVFs based on the
-        action."""
-        # todo: this is set as a variable in learn_from_action; we don't need to have two dependent calls...
-        action = self.agent.get_action(state_prime=None)    # state doesn't matter; randint
+    def learn_from_action(self, action):
         self.action_count += 1
         # If we've done 100 steps; pretty print the progress.
         if self.action_count % 100 == 0:
@@ -445,6 +442,14 @@ class Foreground:
         self.state = self.network.state
         # Update our display (for debugging and progress reporting)
         self.update_ui(action)
+
+    def learn_from_behavior_policy_action(self):
+        """Using the behaviour policy, selects an action. After selecting an action, updates the GVFs based on the
+        action."""
+        # todo: this is set as a variable in learn_from_action; we don't need to have two dependent calls...
+        action = self.agent.get_action(state_prime=None)    # state doesn't matter; randint
+        self.learn_from_action(action)
+
 
     def get_true_values(self):
         true_values = []
@@ -566,8 +571,20 @@ class Foreground:
             pyplot.show()
 
 
+    def start_controlling(self):
+        """Initializes the plotter and runs the experiment."""
+        # Loop until mission ends:
+        while self.action_count < self.steps_before_prompting_for_action:
+            # Select and send action. Need to sleep to give time for simulator to respond
+            self.learn_from_behavior_policy_action()
+        self.display.root.mainloop()
+        print("Mission ended")
+        # Mission has ended.
+        # re
 
 if __name__ == "__main__":
     # fg.read_gvf_weights()
+
     fg = Foreground(show_display=False, steps_before_updating_display=1000, steps_before_prompting_for_action=25000)
     fg.start()
+    #fg.start_controlling()
